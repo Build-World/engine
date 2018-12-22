@@ -2,11 +2,15 @@ package com.buildworld.game;
 
 import com.buildworld.game.blocks.BlockService;
 import com.buildworld.game.items.ItemService;
+import com.buildworld.game.state.GameState;
+import com.buildworld.game.state.State;
+import com.buildworld.game.state.StateMachine;
 import com.buildworld.graphics.RenderService;
 import com.buildworld.graphics.bootstrap.Window;
 import com.buildworld.graphics.bootstrap.Renderer;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+
 import static org.lwjgl.glfw.GLFW.glfwTerminate;
 import static org.lwjgl.glfw.GLFW.glfwInit;
 import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
@@ -31,7 +35,9 @@ public class Game {
 
     private Renderer renderer = new Renderer();
 
-    public static Game run()
+    private StateMachine stateMachine;
+
+    public static void run()
     {
         Game game = new Game();
         game.boot();
@@ -39,7 +45,6 @@ public class Game {
         game.ready();
         game.play();
         game.dispose();
-        return game;
     }
 
     /**
@@ -48,6 +53,9 @@ public class Game {
     public void dispose() {
         /* Dipose renderer */
         renderer.dispose();
+
+        /* Set empty state to trigger the exit method in the current state */
+        stateMachine.change(null);
 
         /* Release window and its callbacks */
         window.destroy();
@@ -62,7 +70,7 @@ public class Game {
     public void boot()
     {
         /* Set error callback */
-        errorCallback = GLFWErrorCallback.createPrint();
+        errorCallback = GLFWErrorCallback.createPrint(System.err);
         glfwSetErrorCallback(errorCallback);
 
         /* Initialize GLFW */
@@ -87,13 +95,16 @@ public class Game {
     // Loads blocks, items, mods, etc.
     public void load()
     {
-
+        State state = new GameState();
+        state.load();
+        stateMachine.add("game", state);
+        stateMachine.change("game");
     }
 
     // After loading is done, this method is called to get things ready to begin looping and ticking
     public void ready()
     {
-
+        stateMachine.ready();
     }
 
     // Called when we are ready to begin looping
@@ -142,31 +153,28 @@ public class Game {
     // Handle user input
     public void input()
     {
-
+        stateMachine.input();
     }
 
-    // ALL OpenGL shananigans should begin in here
-    // This is called each frame
-    // Mostly GPU bound
     public void draw()
     {
-        //renderer.draw();
+        stateMachine.render();
     }
 
     public void draw(float alpha)
     {
-
+        stateMachine.render(alpha);
     }
 
     // CPU based world updates
     public void tick()
     {
-
+        stateMachine.update();
     }
 
     public void tick(float delta)
     {
-
+        stateMachine.update(delta);
     }
 
     /**
