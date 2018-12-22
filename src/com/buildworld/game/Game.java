@@ -94,7 +94,7 @@ public class Game {
 
         new BlockService();
         new ItemService();
-        new RenderService();
+        new RenderService(renderer);
     }
 
     // Loads features and services

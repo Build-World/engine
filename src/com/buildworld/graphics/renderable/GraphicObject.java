@@ -12,7 +12,7 @@ public abstract class GraphicObject implements Renderable {
 
     public GraphicObject()
     {
-        Services.getService(RenderService.class).add(this);
+        //Services.getService(RenderService.class).add(this);
     }
 
     public int getVertexCount() {

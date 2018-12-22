@@ -1,9 +1,15 @@
 package com.buildworld.graphics.bootstrap;
 
+import java.awt.*;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.buildworld.graphics.colors.RGBAColor;
+import com.buildworld.graphics.text.Font;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
@@ -39,6 +45,9 @@ public class Renderer {
     private int numVertices;
     private boolean drawing;
 
+    private Font font;
+    private Font debugFont;
+
     /** Initializes the renderer. */
     public void init() {
         /* Setup shader programs */
@@ -47,6 +56,15 @@ public class Renderer {
         /* Enable blending */
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        /* Create fonts */
+        try {
+            font = new Font(new FileInputStream("resources/Inconsolata.ttf"), 16);
+        } catch (FontFormatException | IOException ex) {
+            Logger.getLogger(Renderer.class.getName()).log(Level.CONFIG, null, ex);
+            font = new Font();
+        }
+        debugFont = new Font(12, false);
     }
 
     /**
@@ -107,6 +125,96 @@ public class Renderer {
     }
 
     /**
+     * Calculates total width of a text.
+     *
+     * @param text The text
+     *
+     * @return Total width of the text
+     */
+    public int getTextWidth(CharSequence text) {
+        return font.getWidth(text);
+    }
+
+    /**
+     * Calculates total height of a text.
+     *
+     * @param text The text
+     *
+     * @return Total width of the text
+     */
+    public int getTextHeight(CharSequence text) {
+        return font.getHeight(text);
+    }
+
+    /**
+     * Calculates total width of a debug text.
+     *
+     * @param text The text
+     *
+     * @return Total width of the text
+     */
+    public int getDebugTextWidth(CharSequence text) {
+        return debugFont.getWidth(text);
+    }
+
+    /**
+     * Calculates total height of a debug text.
+     *
+     * @param text The text
+     *
+     * @return Total width of the text
+     */
+    public int getDebugTextHeight(CharSequence text) {
+        return debugFont.getHeight(text);
+    }
+
+    /**
+     * Draw text at the specified position.
+     *
+     * @param text Text to draw
+     * @param x    X coordinate of the text position
+     * @param y    Y coordinate of the text position
+     */
+    public void drawText(CharSequence text, float x, float y) {
+        font.drawText(this, text, x, y);
+    }
+
+    /**
+     * Draw debug text at the specified position.
+     *
+     * @param text Text to draw
+     * @param x    X coordinate of the text position
+     * @param y    Y coordinate of the text position
+     */
+    public void drawDebugText(CharSequence text, float x, float y) {
+        debugFont.drawText(this, text, x, y);
+    }
+
+    /**
+     * Draw text at the specified position andRGBAColor.
+     *
+     * @param text Text to draw
+     * @param x    X coordinate of the text position
+     * @param y    Y coordinate of the text position
+     * @param c   RGBAColor to use
+     */
+    public void drawText(CharSequence text, float x, float y,RGBAColor c) {
+        font.drawText(this, text, x, y, c);
+    }
+
+    /**
+     * Draw debug text at the specified position andRGBAColor.
+     *
+     * @param text Text to draw
+     * @param x    X coordinate of the text position
+     * @param y    Y coordinate of the text position
+     * @param c   RGBAColor to use
+     */
+    public void drawDebugText(CharSequence text, float x, float y,RGBAColor c) {
+        debugFont.drawText(this, text, x, y, c);
+    }
+
+    /**
      * Draws the currently bound texture on specified coordinates.
      *
      * @param texture Used for getting width and height of the texture
@@ -119,12 +227,12 @@ public class Renderer {
 
     /**
      * Draws the currently bound texture on specified coordinates and with
-     * specified color.
+     * specifiedRGBAColor.
      *
      * @param texture Used for getting width and height of the texture
      * @param x       X position of the texture
      * @param y       Y position of the texture
-     * @param c       The color to use
+     * @param c       TheRGBAColor to use
      */
     public void drawTexture(Texture texture, float x, float y, RGBAColor c) {
         /* Vertex positions */
@@ -169,7 +277,7 @@ public class Renderer {
      * @param regY      Y position of the texture region
      * @param regWidth  Width of the texture region
      * @param regHeight Height of the texture region
-     * @param c         The color to use
+     * @param c         TheRGBAColor to use
      */
     public void drawTextureRegion(Texture texture, float x, float y, float regX, float regY, float regWidth, float regHeight, RGBAColor c) {
         /* Vertex positions */
@@ -216,7 +324,7 @@ public class Renderer {
      * @param t1 Bottom left t coordinate
      * @param s2 Top right s coordinate
      * @param t2 Top right t coordinate
-     * @param c  The color to use
+     * @param c  TheRGBAColor to use
      */
     public void drawTextureRegion(float x1, float y1, float x2, float y2, float s1, float t1, float s2, float t2, RGBAColor c) {
         if (vertices.remaining() < 7 * 6) {
@@ -251,6 +359,9 @@ public class Renderer {
         }
         vbo.delete();
         program.delete();
+
+        font.dispose();
+        debugFont.dispose();
     }
 
     /** Setups the default shader program. */
