@@ -15,6 +15,14 @@ public class GameTime {
     private int frames = 0;
     private int updates = 0;
 
+    public GameTime() {
+    }
+
+    public GameTime(double desired_ticks, double desired_fps) {
+        this.desired_ticks = desired_ticks;
+        this.desired_fps = desired_fps;
+    }
+
     public void update()
     {
         long now = System.nanoTime();

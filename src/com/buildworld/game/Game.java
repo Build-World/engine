@@ -7,7 +7,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Game {
 
-    private GameTime gameTime = new GameTime();
+    private GameTime gameTime = new GameTime(40.0, 60.0);
     private long window;
     private boolean running = true;
 
