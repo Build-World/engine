@@ -124,7 +124,7 @@ public class Game {
         }
 
         this.gameTime.preDraw();
-        this.draw();
+        this.draw(this.gameTime.getAlpha());
         this.gameTime.postDraw();
 
         this.gameTime.printDebug();

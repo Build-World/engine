@@ -21,6 +21,22 @@ public class GameTime {
         interval = 1f / this.desired_ticks;
     }
 
+    public float getAlpha() {
+        return alpha;
+    }
+
+    public float getDelta() {
+        return delta;
+    }
+
+    public float getAccumulator() {
+        return accumulator;
+    }
+
+    public float getInterval() {
+        return interval;
+    }
+
     public void update()
     {
         /* Get delta time and update the accumulator */
