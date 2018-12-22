@@ -13,7 +13,7 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
-public class HelloWorld {
+public class Main {
 
     // The window handle
     private long window;
@@ -95,7 +95,7 @@ public class HelloWorld {
         GL.createCapabilities();
 
         // Set the clear color
-        glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
 
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
@@ -111,7 +111,7 @@ public class HelloWorld {
     }
 
     public static void main(String[] args) {
-        new HelloWorld().run();
+        new Main().run();
     }
 
 }
