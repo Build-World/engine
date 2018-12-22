@@ -2,6 +2,7 @@ package com.buildworld.game;
 
 import com.buildworld.game.blocks.BlockService;
 import com.buildworld.game.items.ItemService;
+import com.buildworld.graphics.Renderer;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -10,6 +11,7 @@ public class Game {
     private GameTime gameTime = new GameTime(40.0, 60.0);
     private long window;
     private boolean running = true;
+    private Renderer renderer = new Renderer();
 
     public static Game run()
     {
@@ -72,9 +74,10 @@ public class Game {
 
         this.gameTime.printDebug();
 
-        /*if(glfwWindowShouldClose(window)){
+        if(glfwWindowShouldClose(renderer.getWindow())){
             running = false;
-        }*/
+            renderer.destroyWindow();
+        }
 
     }
 
@@ -89,7 +92,7 @@ public class Game {
     // Mostly GPU bound
     public void draw()
     {
-
+        renderer.draw();
     }
 
     // CPU based world updates

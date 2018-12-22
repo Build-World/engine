@@ -1,6 +1,7 @@
-package com.buildworld.graphics.base;
+package com.buildworld.graphics;
 
 import com.buildworld.graphics.Graphic;
+import com.buildworld.graphics.base.RenderedObject;
 
 import java.util.ArrayList;
 

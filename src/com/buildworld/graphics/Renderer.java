@@ -6,9 +6,6 @@ import static org.lwjgl.opengl.GL46.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
-import com.buildworld.graphics.base.ModelLoader;
-import com.buildworld.graphics.base.ModelRenderer;
-import com.buildworld.graphics.base.RenderManager;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -16,7 +13,7 @@ import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
 
-public class Renderer implements Runnable {
+public class Renderer {
 
     private static final int WIDTH = 1280;
     private static final int HEIGHT = 720;
@@ -28,6 +25,14 @@ public class Renderer implements Runnable {
     public static ModelRenderer modelRenderer = new ModelRenderer();
 
     public static RenderManager renderManager = new RenderManager();
+
+    public Renderer(){
+        this.createWindow();
+    }
+
+    public long getWindow() {
+        return window;
+    }
 
     private void createWindow(){
         // Setup an error callback. The default implementation
@@ -80,9 +85,7 @@ public class Renderer implements Runnable {
 
         // Make the window visible
         glfwShowWindow(window);
-    }
 
-    private void updateLoop(){
         // This line is critical for LWJGL's interoperation with GLFW's
         // OpenGL context, or any context that is managed externally.
         // LWJGL detects the context that is current in the current thread,
@@ -94,26 +97,24 @@ public class Renderer implements Runnable {
         // This set sthe background.
         glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
         Graphic g = new Graphic();
-
-        // Loop while the user has not closed the window.
-        while ( !glfwWindowShouldClose(window) ) {
-
-            // Reset the render color to the default color.
-            modelRenderer.prepare();
-
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
-
-            // Render objects.
-            renderManager.render();
-
-            glfwSwapBuffers(window); // swap the color buffers
-
-            // Enable keyboard inputs.
-            glfwPollEvents();
-        }
     }
 
-    private void destroyWindow(){
+    public void draw(){
+        // Reset the render color to the default color.
+        modelRenderer.prepare();
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
+
+        // Render objects.
+        renderManager.render();
+
+        glfwSwapBuffers(window); // swap the color buffers
+
+        // Enable keyboard inputs.
+        glfwPollEvents();
+    }
+
+    public void destroyWindow(){
         // Cleaup the VBO/VAOs
         modelLoader.cleanUp();
 
@@ -124,12 +125,5 @@ public class Renderer implements Runnable {
         // Terminate GLFW and free the error callback
         glfwTerminate();
         glfwSetErrorCallback(null).free();
-    }
-
-    @Override
-    public void run() {
-        this.createWindow();
-        this.updateLoop();
-        this.destroyWindow();
     }
 }

@@ -1,5 +1,6 @@
-package com.buildworld.graphics.base;
+package com.buildworld.graphics;
 
+import com.buildworld.graphics.base.RawModel;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
