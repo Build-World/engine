@@ -10,12 +10,12 @@ public class TestState implements State {
 
     @Override
     public void update(float delta) {
-
+        System.out.println("ticked with delta: " + delta);
     }
 
     @Override
     public void render(float alpha) {
-
+        System.out.println("drew with alpha: " + alpha);
     }
 
     @Override
