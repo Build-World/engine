@@ -1,10 +1,9 @@
 package com.buildworld.game.blocks;
 
-import com.buildworld.game.interfaces.Colorable;
 import com.buildworld.graphics.colors.RGBAColor;
 import com.shawnclake.morgencore.core.component.services.Services;
 
-abstract public class Block implements Colorable {
+abstract public class Block {
 
     public String namespace;
     public String name;

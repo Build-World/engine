@@ -29,8 +29,8 @@ public class TriangleMesh extends Mesh {
         vertices[7] = point3.y;
         vertices[8] = point3.z;
 
-        this.color = color;
+        this.setColor(color);
 
-        addVertices(vertices);
+        this.setVertices(vertices);
     }
 }

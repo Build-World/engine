@@ -1,3 +1,4 @@
 .idea/
 out/
 engine.iml
+*.log

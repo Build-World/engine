@@ -1,71 +1,94 @@
 package com.buildworld.game;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class GameTime {
 
-    private long lastTime = System.nanoTime();
-    private double desired_ticks = 40.0;
-    private double desired_fps = 60.0;
-    private double ns = 1000000000 / desired_ticks;
-    private double fps = 1000000000 / desired_fps;
-    private double tick_delta = 0;
-    private double fps_delta = 0;
+    private Timer timer;
+    private int desired_ticks, desired_fps;
+    private float delta;
+    private float accumulator = 0f;
+    private float interval;
+    private float alpha;
+    private long debug_timer = System.currentTimeMillis();
 
-    // For the debugging output
-    private long timer = System.currentTimeMillis();
-    private int frames = 0;
-    private int updates = 0;
-
-    public GameTime() {
-    }
-
-    public GameTime(double desired_ticks, double desired_fps) {
-        this.desired_ticks = desired_ticks;
+    public GameTime(int desired_ticks, int desired_fps) {
+        timer = new Timer();
+        timer.init();
         this.desired_fps = desired_fps;
+        this.desired_ticks = desired_ticks;
+        interval = 1f / this.desired_ticks;
     }
 
     public void update()
     {
-        long now = System.nanoTime();
-        tick_delta += (now - lastTime) / ns;
-        fps_delta += (now - lastTime) / fps;
-
-        lastTime = now;
+        /* Get delta time and update the accumulator */
+        delta = timer.getDelta();
+        accumulator += delta;
     }
 
     public boolean isTick()
     {
-        if(tick_delta >= 1)
-            return true;
-        return false;
+        return accumulator >= interval;
     }
 
-    public void tick()
+    public void postTick()
     {
-        tick_delta--;
-        updates++;
+        timer.updateUPS();
+        accumulator -= interval;
     }
 
-    public boolean isDraw()
+    public void preDraw()
     {
-        if(fps_delta >= 1)
-            return true;
-        return false;
+        /* Calculate alpha value for interpolation */
+        alpha = accumulator / interval;
     }
 
-    public void draw()
+    public void postDraw()
     {
-        frames++;
-        fps_delta = 0;
+        timer.updateFPS();
+
+        /* Update timer */
+        timer.update();
+    }
+
+    public void sync()
+    {
+        this.syncHelper(desired_fps);
+    }
+
+    /**
+     * Synchronizes the game at specified frames per second.
+     *
+     * @param fps Frames per second
+     */
+    public void syncHelper(int fps) {
+        double lastLoopTime = timer.getLastLoopTime();
+        double now = timer.getTime();
+        float targetTime = 1f / fps;
+
+        while (now - lastLoopTime < targetTime) {
+            Thread.yield();
+
+            /* This is optional if you want your game to stop consuming too much
+             * CPU but you will loose some accuracy because Thread.sleep(1)
+             * could sleep longer than 1 millisecond */
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            now = timer.getTime();
+        }
     }
 
     public void printDebug()
     {
-        if (System.currentTimeMillis() - timer > 1000) {
-            timer += 1000;
-            System.out.println(updates + " UPS, " + frames + " FPS");
-            updates = 0;
-            frames = 0;
+        if (System.currentTimeMillis() - debug_timer > 1000) {
+            debug_timer += 1000;
+            System.out.println(timer.getUPS() + " UPS, " + timer.getFPS() + " FPS");
         }
     }
-
 }

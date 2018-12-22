@@ -1,6 +1,6 @@
 package com.buildworld.graphics.mesh;
 
-import com.buildworld.graphics.base.GraphicObject;
+import com.buildworld.graphics.renderable.GraphicObject;
 import org.joml.Vector3f;
 
 public class Mesh extends GraphicObject {
