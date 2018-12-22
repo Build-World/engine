@@ -33,7 +33,7 @@ public class Game {
 
     private Window window;
 
-    private Renderer renderer = new Renderer();
+    private Renderer renderer;
 
     private StateMachine stateMachine;
 
@@ -45,6 +45,11 @@ public class Game {
         game.ready();
         game.play();
         game.dispose();
+    }
+
+    public Game() {
+        renderer = new Renderer();
+        stateMachine = new StateMachine();
     }
 
     /**
