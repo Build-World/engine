@@ -9,6 +9,7 @@ abstract public class Block implements Colorable {
     public String namespace;
     public String name;
     public RGBAColor color = new RGBAColor();
+    public Material material = new Material();
 
     public void register()
     {
