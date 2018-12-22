@@ -17,7 +17,9 @@ public class ModelLoader {
 
     public RawModel loadToVAO(float[] vertices){
         int vaoID = createVAO();    // Create a VAO and activate it.
+
         storeDataInAttributeList(0, vertices);
+
         this.unbindVao();
         return new RawModel(vaoID, vertices.length/3);
     }

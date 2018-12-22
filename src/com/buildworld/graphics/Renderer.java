@@ -6,9 +6,15 @@ import static org.lwjgl.opengl.GL46.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
+import com.buildworld.graphics.colors.RGBAColor;
+import com.buildworld.graphics.mesh.CubeMesh;
+import com.buildworld.graphics.mesh.SquareMesh;
+import com.buildworld.graphics.mesh.TriangleMesh;
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
@@ -22,7 +28,6 @@ public class Renderer {
     private long window;
 
     public static ModelLoader modelLoader = new ModelLoader();
-    public static ModelRenderer modelRenderer = new ModelRenderer();
 
     public static RenderManager renderManager = new RenderManager();
 
@@ -96,12 +101,19 @@ public class Renderer {
         // Clear the color from the previous frame.
         // This set sthe background.
         glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
-        Graphic g = new Graphic();
+
+        for(int i=0; i<200; i++){
+            CubeMesh cube = new CubeMesh(new Vector3f(-1f/i, -1f/i, -0.5f/i));
+        }
     }
 
     public void draw(){
-        // Reset the render color to the default color.
-        modelRenderer.prepare();
+        GL11.glClearColor(0, 1, 0, 1);
+
+        // Enable depth test
+        glEnable(GL_DEPTH_TEST);
+        // Accept fragment if it closer to the camera than the former one
+        glDepthFunc(GL_LESS);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 

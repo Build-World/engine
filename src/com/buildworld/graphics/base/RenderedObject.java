@@ -10,8 +10,4 @@ public abstract class RenderedObject {
 
     public abstract void render();
 
-    public void destroy(){
-        Renderer.renderManager.removeResource(this);
-    }
-
 }
