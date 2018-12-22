@@ -1,3 +1,3 @@
 Manifest-Version: 1.0
-Main-Class: com.shawnclake.Main
+Main-Class: com.buildworld.Main
 

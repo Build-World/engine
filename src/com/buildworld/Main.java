@@ -1,4 +1,4 @@
-package com.shawnclake;
+package com.buildworld;
 
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
