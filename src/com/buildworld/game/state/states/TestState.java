@@ -1,25 +1,30 @@
-package com.buildworld.game.state;
+package com.buildworld.game.state.states;
 
-public class EmptyState implements State {
+import com.buildworld.game.state.State;
 
+public class TestState implements State {
     @Override
     public void input() {
+
     }
 
     @Override
     public void update(float delta) {
+
     }
 
     @Override
     public void render(float alpha) {
+
     }
 
     @Override
     public void enter() {
+
     }
 
     @Override
     public void exit() {
-    }
 
+    }
 }

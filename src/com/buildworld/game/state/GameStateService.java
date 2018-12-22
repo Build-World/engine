@@ -1,14 +1,9 @@
 package com.buildworld.game.state;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.shawnclake.morgencore.core.component.services.Service;
+import com.shawnclake.morgencore.core.component.services.Services;
 
-public class StateMachine  implements State {
-
-    /**
-     * Contains all states of this state machine.
-     */
-    private final Map<String, State> states;
+public class GameStateService extends Service implements State {
     /**
      * Current active state.
      */
@@ -17,31 +12,20 @@ public class StateMachine  implements State {
     /**
      * Creates a state machine.
      */
-    public StateMachine() {
-        states = new HashMap<>();
-        currentState = new EmptyState();
-        states.put(null, currentState);
-    }
-
-    /**
-     * Adds a state with specified name.
-     *
-     * @param name  Name of the state
-     * @param state The state to add
-     */
-    public void add(String name, State state) {
-        states.put(name, state);
+    public GameStateService() {
+        super();
     }
 
     /**
      * Changes the current state.
      *
-     * @param name Name of the desired state
      */
-    public void change(String name) {
-        currentState.exit();
-        currentState = states.get(name);
-        currentState.enter();
+    public <T extends State> void change(Class<T> state) {
+        if(currentState != null)
+            currentState.exit();
+        currentState = Services.getService(GameStatesService.class).getItem(state);
+        if(currentState != null)
+            currentState.enter();
     }
 
     @Override

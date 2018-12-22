@@ -2,12 +2,13 @@ package com.buildworld.game;
 
 import com.buildworld.game.blocks.BlockService;
 import com.buildworld.game.items.ItemService;
-import com.buildworld.game.state.GameState;
-import com.buildworld.game.state.State;
-import com.buildworld.game.state.StateMachine;
+import com.buildworld.game.state.*;
+import com.buildworld.game.state.states.EmptyState;
+import com.buildworld.game.state.states.TestState;
 import com.buildworld.graphics.RenderService;
 import com.buildworld.graphics.bootstrap.Window;
 import com.buildworld.graphics.bootstrap.Renderer;
+import com.shawnclake.morgencore.core.component.services.Services;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 
@@ -35,8 +36,6 @@ public class Game {
 
     private Renderer renderer;
 
-    private StateMachine stateMachine;
-
     public static void run()
     {
         Game game = new Game();
@@ -49,7 +48,6 @@ public class Game {
 
     public Game() {
         renderer = new Renderer();
-        stateMachine = new StateMachine();
     }
 
     /**
@@ -60,7 +58,7 @@ public class Game {
         renderer.dispose();
 
         /* Set empty state to trigger the exit method in the current state */
-        stateMachine.change(null);
+        Services.getService(GameStateService.class).change(null);
 
         /* Release window and its callbacks */
         window.destroy();
@@ -91,6 +89,9 @@ public class Game {
         /* Initialize renderer */
         renderer.init();
 
+        new GameStatesService();
+        new GameStateService();
+
         new BlockService();
         new ItemService();
         new RenderService();
@@ -100,16 +101,21 @@ public class Game {
     // Loads blocks, items, mods, etc.
     public void load()
     {
-        State state = new GameState();
+        State state = new TestState();
         state.load();
-        stateMachine.add("game", state);
-        stateMachine.change("game");
+        Services.getService(GameStatesService.class).add(state);
+
+        state = new EmptyState();
+        state.load();
+        Services.getService(GameStatesService.class).add(state);
+
+        Services.getService(GameStateService.class).change(TestState.class);
     }
 
     // After loading is done, this method is called to get things ready to begin looping and ticking
     public void ready()
     {
-        stateMachine.ready();
+        Services.getService(GameStateService.class).ready();
     }
 
     // Called when we are ready to begin looping
@@ -158,28 +164,28 @@ public class Game {
     // Handle user input
     public void input()
     {
-        stateMachine.input();
+        Services.getService(GameStateService.class).input();
     }
 
     public void draw()
     {
-        stateMachine.render();
+        Services.getService(GameStateService.class).render();
     }
 
     public void draw(float alpha)
     {
-        stateMachine.render(alpha);
+        Services.getService(GameStateService.class).render(alpha);
     }
 
     // CPU based world updates
     public void tick()
     {
-        stateMachine.update();
+        Services.getService(GameStateService.class).update();
     }
 
     public void tick(float delta)
     {
-        stateMachine.update(delta);
+        Services.getService(GameStateService.class).update(delta);
     }
 
     /**
