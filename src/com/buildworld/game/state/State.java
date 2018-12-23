@@ -1,52 +1,24 @@
 package com.buildworld.game.state;
 
-import com.buildworld.game.Game;
+import com.buildworld.engine.MouseInput;
+import com.buildworld.engine.graphics.Window;
 
 public interface State {
-    /**
-     * Handles input of the state.
-     */
-    void input();
+    void init(Window window) throws Exception;
 
-    /**
-     * Updates the state (fixed timestep).
-     */
-    default void update() {
-        update(1f / Game.TARGET_TICKS);
-    }
+    void load();
 
-    /**
-     * Updates the state (variable timestep)
-     *
-     * @param delta Time difference in seconds
-     */
-    void update(float delta);
+    void ready();
 
-    /**
-     * Renders the state (no interpolation).
-     */
-    default void render() {
-        render(1f);
-    }
-
-    /**
-     * Renders the state (with interpolation).
-     *
-     * @param alpha Alpha value, needed for interpolation
-     */
-    void render(float alpha);
-
-    default void load() {}
-
-    default void ready() {}
-
-    /**
-     * Gets executed when entering the state, useful for initialization.
-     */
     void enter();
 
-    /**
-     * Gets executed when leaving the state, useful for disposing.
-     */
     void exit();
+
+    void input(Window window, MouseInput mouseInput);
+
+    void update(float interval, MouseInput mouseInput);
+
+    void render(Window window);
+
+    void cleanup();
 }

@@ -1,6 +1,6 @@
 package com.buildworld.game.blocks;
 
-import com.buildworld.graphics.colors.RGBAColor;
+import com.buildworld.engine.graphics.colors.RGBAColor;
 import com.shawnclake.morgencore.core.component.services.Services;
 
 abstract public class Block {

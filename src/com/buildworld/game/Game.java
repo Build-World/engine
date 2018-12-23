@@ -1,20 +1,12 @@
 package com.buildworld.game;
 
+import com.buildworld.engine.MouseInput;
+import com.buildworld.engine.graphics.Window;
 import com.buildworld.game.blocks.BlockService;
 import com.buildworld.game.items.ItemService;
 import com.buildworld.game.state.*;
-import com.buildworld.game.state.states.EmptyState;
-import com.buildworld.game.state.states.TestState;
-import com.buildworld.graphics.RenderService;
-import com.buildworld.graphics.bootstrap.Window;
-import com.buildworld.graphics.bootstrap.Renderer;
+import com.buildworld.game.state.states.GameState;
 import com.shawnclake.morgencore.core.component.services.Services;
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.opengl.GL;
-
-import static org.lwjgl.glfw.GLFW.glfwTerminate;
-import static org.lwjgl.glfw.GLFW.glfwInit;
-import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
 
 
 public class Game {
@@ -23,20 +15,15 @@ public class Game {
     public static final int TARGET_TICKS = 40;
     public static final String name = "Build World";
 
-    private GameTime gameTime;
-
-    /**
-     * The error callback for GLFW.
-     */
-    private GLFWErrorCallback errorCallback;
-
     private boolean running = true;
 
-    private Window window;
+    private final GameTime gameTime;
 
-    private Renderer renderer;
+    private final Window window;
 
-    public static void run()
+    private final MouseInput mouseInput;
+
+    public static void run() throws Exception
     {
         Game game = new Game();
         game.boot();
@@ -47,69 +34,40 @@ public class Game {
     }
 
     public Game() {
-        renderer = new Renderer();
+        boolean vSync = false;
+        window = new Window(name, 640, 480, vSync);
+        gameTime = new GameTime(TARGET_TICKS, TARGET_FPS);
+        mouseInput = new MouseInput();
     }
 
-    /**
-     * Releases resources that where used by the game.
-     */
     public void dispose() {
-        /* Dipose renderer */
-        renderer.dispose();
-
         /* Set empty state to trigger the exit method in the current state */
-        Services.getService(GameStateService.class).change(null);
-
-        /* Release window and its callbacks */
-        window.destroy();
-
-        /* Terminate GLFW and release the error callback */
-        glfwTerminate();
-        errorCallback.free();
+        Services.getService(GameStateService.class).cleanup();
     }
 
     // Called when first launching app and sets up objects and instances
     // In other words, it gets the engine ready to work
-    public void boot()
+    public void boot() throws Exception
     {
-        /* Set error callback */
-        errorCallback = GLFWErrorCallback.createPrint(System.err);
-        glfwSetErrorCallback(errorCallback);
-
-        /* Initialize GLFW */
-        if (!glfwInit()) {
-            throw new IllegalStateException("Unable to initialize GLFW!");
-        }
-
-        /* Create GLFW window */
-        window = new Window(640, 480, name, false);
-
-        gameTime = new GameTime(TARGET_TICKS, TARGET_FPS);
-
-        /* Initialize renderer */
-        renderer.init();
+        window.init();
+        mouseInput.init(window);
 
         new GameStatesService();
         new GameStateService();
 
+        State state = new GameState();
+        state.init(window);
+        Services.getService(GameStatesService.class).add(state);
+
         new BlockService();
         new ItemService();
-        new RenderService(renderer);
     }
 
     // Loads features and services
     // Loads blocks, items, mods, etc.
     public void load()
     {
-        State state = new TestState();
-        state.load();
-        Services.getService(GameStatesService.class).add(state);
-
-        state = new EmptyState();
-        state.load();
-        Services.getService(GameStatesService.class).add(state);
-
-        Services.getService(GameStateService.class).change(TestState.class);
+        Services.getService(GameStateService.class).change(GameState.class);
     }
 
     // After loading is done, this method is called to get things ready to begin looping and ticking
@@ -121,7 +79,7 @@ public class Game {
     // Called when we are ready to begin looping
     public void play()
     {
-        while(running)
+        while(running && !window.windowShouldClose())
         {
             this.loop();
         }
@@ -130,11 +88,6 @@ public class Game {
     // Loop controls the game flow
     public void loop()
     {
-        if(window.isClosing()){
-            running = false;
-            window.destroy();
-        }
-
         this.input();
 
         this.gameTime.update();
@@ -151,50 +104,38 @@ public class Game {
 
         this.gameTime.printDebug();
 
-        /* Update window to show the new screen */
-        window.update();
-
-        /* Synchronize if v-sync is disabled */
-        if (!window.isVSyncEnabled()) {
+        if ( !window.isvSync() ) {
             this.gameTime.sync();
         }
-
     }
 
     // Handle user input
     public void input()
     {
-        Services.getService(GameStateService.class).input();
+        mouseInput.input(window);
+        Services.getService(GameStateService.class).input(window, mouseInput);
     }
 
     public void draw()
     {
-        Services.getService(GameStateService.class).render();
+        Services.getService(GameStateService.class).render(window);
+        window.update();
     }
 
     public void draw(float alpha)
     {
-        Services.getService(GameStateService.class).render(alpha);
+        Services.getService(GameStateService.class).render(window);
+        window.update();
     }
 
-    // CPU based world updates
     public void tick()
     {
-        Services.getService(GameStateService.class).update();
+        Services.getService(GameStateService.class).update(1f, mouseInput);
     }
 
     public void tick(float delta)
     {
-        Services.getService(GameStateService.class).update(delta);
-    }
-
-    /**
-     * Determines if the OpenGL context supports version 3.2.
-     *
-     * @return true, if OpenGL context supports version 3.2, else false
-     */
-    public static boolean isDefaultContext() {
-        return GL.getCapabilities().OpenGL32;
+        Services.getService(GameStateService.class).update(delta, mouseInput);
     }
 
 }

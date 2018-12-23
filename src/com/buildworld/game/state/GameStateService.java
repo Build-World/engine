@@ -1,5 +1,7 @@
 package com.buildworld.game.state;
 
+import com.buildworld.engine.MouseInput;
+import com.buildworld.engine.graphics.Window;
 import com.shawnclake.morgencore.core.component.services.Service;
 import com.shawnclake.morgencore.core.component.services.Services;
 
@@ -28,38 +30,52 @@ public class GameStateService extends Service implements State {
             currentState.enter();
     }
 
-    @Override
-    public void input() {
-        currentState.input();
+    public State getCurrentState() {
+        return currentState;
     }
 
     @Override
-    public void update() {
-        currentState.update();
+    public void init(Window window) throws Exception {
+        this.currentState.init(window);
     }
 
     @Override
-    public void update(float delta) {
-        currentState.update(delta);
+    public void load() {
+        this.currentState.load();
     }
 
     @Override
-    public void render() {
-        currentState.render();
-    }
-
-    @Override
-    public void render(float alpha) {
-        currentState.render(alpha);
+    public void ready() {
+        this.currentState.ready();
     }
 
     @Override
     public void enter() {
-        currentState.enter();
+        this.currentState.enter();
     }
 
     @Override
     public void exit() {
-        currentState.exit();
+        this.currentState.exit();
+    }
+
+    @Override
+    public void input(Window window, MouseInput mouseInput) {
+        this.currentState.input(window, mouseInput);
+    }
+
+    @Override
+    public void update(float interval, MouseInput mouseInput) {
+        this.currentState.update(interval, mouseInput);
+    }
+
+    @Override
+    public void render(Window window) {
+        this.currentState.render(window);
+    }
+
+    @Override
+    public void cleanup() {
+        this.currentState.cleanup();
     }
 }
