@@ -1,7 +1,7 @@
 package com.buildworld.game;
 
 import org.joml.Vector3f;
-import com.buildworld.engine.graphics.Mesh;
+import com.buildworld.engine.graphics.mesh.Mesh;
 
 public class GameItem {
 
@@ -18,6 +18,7 @@ public class GameItem {
         position = new Vector3f(0, 0, 0);
         scale = 1;
         rotation = new Vector3f(0, 0, 0);
+        scale = 0.5f;
     }
 
     public Vector3f getPosition() {

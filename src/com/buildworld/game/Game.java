@@ -11,7 +11,7 @@ import com.shawnclake.morgencore.core.component.services.Services;
 
 public class Game {
 
-    public static final int TARGET_FPS = 60;
+    public static final int TARGET_FPS = 160;
     public static final int TARGET_TICKS = 40;
     public static final String name = "Build World";
 
