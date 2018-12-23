@@ -1,6 +1,6 @@
 package com.buildworld.game;
 
-import com.buildworld.engine.MouseInput;
+import com.buildworld.engine.io.MouseInput;
 import com.buildworld.engine.graphics.Window;
 import com.buildworld.game.blocks.BlockService;
 import com.buildworld.game.items.ItemService;

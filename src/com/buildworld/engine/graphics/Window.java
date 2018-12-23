@@ -21,12 +21,23 @@ public class Window {
 
     private boolean vSync;
 
+    private boolean wireframe;
+
     public Window(String title, int width, int height, boolean vSync) {
         this.title = title;
         this.width = width;
         this.height = height;
         this.vSync = vSync;
         this.resized = false;
+        this.wireframe = false;
+    }
+
+    public Window(String title, int width, int height, boolean vSync, boolean wireframe) {
+        this.title = title;
+        this.width = width;
+        this.height = height;
+        this.vSync = vSync;
+        this.wireframe = wireframe;
     }
 
     public void init() {
@@ -92,6 +103,9 @@ public class Window {
         // Set the clear color
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glEnable(GL_DEPTH_TEST);
+
+        if(wireframe)
+            glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
     }
 
     public long getWindowHandle() {

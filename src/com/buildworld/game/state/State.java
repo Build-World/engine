@@ -1,6 +1,6 @@
 package com.buildworld.game.state;
 
-import com.buildworld.engine.MouseInput;
+import com.buildworld.engine.io.MouseInput;
 import com.buildworld.engine.graphics.Window;
 
 public interface State {

@@ -1,6 +1,6 @@
 package com.buildworld.engine.graphics.services;
 
-import com.buildworld.engine.graphics.migrate.bootstrap.renderer.Renderer;
+import com.buildworld.engine.graphics.Renderer;
 import com.shawnclake.morgencore.core.component.services.Service;
 
 import static org.lwjgl.opengl.GL11.*;
