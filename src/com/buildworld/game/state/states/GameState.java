@@ -4,6 +4,8 @@ import com.buildworld.engine.MouseInput;
 import com.buildworld.engine.graphics.*;
 import com.buildworld.engine.graphics.mesh.CubeMesh;
 import com.buildworld.engine.graphics.mesh.Mesh;
+import com.buildworld.engine.utils.PerlinNoise;
+import com.buildworld.engine.utils.SimplexNoise;
 import com.buildworld.game.GameItem;
 import com.buildworld.game.state.State;
 import org.joml.Vector2f;
@@ -27,7 +29,7 @@ public class GameState implements State {
 
     private List<GameItem> gameItems = new ArrayList<>();
 
-    private static final float CAMERA_POS_STEP = 0.05f;
+    private static final float CAMERA_POS_STEP = 0.2f;
 
     public GameState() {
         renderer = new Renderer();
@@ -42,14 +44,22 @@ public class GameState implements State {
         Texture texture = new Texture("D:\\Programming\\Projects\\Build-World\\engine\\resources/textures/grassblock.png");
         Mesh mesh = new CubeMesh(texture);
 
-        for(int i = 0; i < 25; i++)
+        SimplexNoise noise = new SimplexNoise();
+
+        int dimension = 256;
+        float feature = 32f;
+
+        for(int i = 0; i < dimension; i++)
         {
-            for(int j = 0; j < 25; j++)
+            for(int j = 0; j < dimension; j++)
             {
-                for(int w = 0; w < 25; w++)
+                int height = (int)((noise.eval(i/feature,j/feature) + 1f) * 16f);
+                for(int w = 0; w < height; w++)
                 {
+                    if(w != height - 1)
+                        continue;
                     GameItem gameItem = new GameItem(mesh);
-                    gameItem.setPosition(i,j,w);
+                    gameItem.setPosition(i,w,j);
                     gameItems.add(gameItem);
                 }
             }
@@ -108,7 +118,7 @@ public class GameState implements State {
             camera.moveRotation(rotVec.x * MOUSE_SENSITIVITY, rotVec.y * MOUSE_SENSITIVITY, 0);
         }
 
-        gameItems.remove(gameItems.size()-1);
+//        gameItems.remove(gameItems.size()-1);
 
     }
 
