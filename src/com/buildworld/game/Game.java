@@ -4,6 +4,8 @@ import com.buildworld.engine.io.MouseInput;
 import com.buildworld.engine.graphics.Window;
 import com.buildworld.game.blocks.BlockService;
 import com.buildworld.game.items.ItemService;
+import com.buildworld.game.mod.ModLoader;
+import com.buildworld.game.mod.ModService;
 import com.buildworld.game.state.*;
 import com.buildworld.game.state.states.GameState;
 import com.shawnclake.morgencore.core.component.services.Services;
@@ -23,6 +25,8 @@ public class Game {
 
     private final MouseInput mouseInput;
 
+    private final ModLoader modLoader;
+
     public static void run() throws Exception
     {
         Game game = new Game();
@@ -38,6 +42,7 @@ public class Game {
         window = new Window(name, 640, 480, vSync);
         gameTime = new GameTime(TARGET_TICKS, TARGET_FPS);
         mouseInput = new MouseInput();
+        modLoader = new ModLoader("D:\\Programming\\Projects\\Build-World\\mods");
     }
 
     public void dispose() {
@@ -61,17 +66,21 @@ public class Game {
 
         new BlockService();
         new ItemService();
+
+        new ModService();
+        modLoader.onBoot();
     }
 
     // Loads features and services
     // Loads blocks, items, mods, etc.
-    public void load()
+    public void load() throws Exception
     {
         Services.getService(GameStateService.class).change(GameState.class);
+        modLoader.onLoad();
     }
 
     // After loading is done, this method is called to get things ready to begin looping and ticking
-    public void ready()
+    public void ready() throws Exception
     {
         Services.getService(GameStateService.class).ready();
     }
@@ -83,6 +92,8 @@ public class Game {
         {
             this.loop();
         }
+
+        modLoader.onPlay();
     }
 
     // Loop controls the game flow
@@ -110,32 +121,36 @@ public class Game {
     }
 
     // Handle user input
-    public void input()
+    public void input() throws Exception
     {
         mouseInput.input(window);
         Services.getService(GameStateService.class).input(window, mouseInput);
     }
 
-    public void draw()
+    public void draw() throws Exception
     {
         Services.getService(GameStateService.class).render(window);
+        modLoader.onDraw();
         window.update();
     }
 
-    public void draw(float alpha)
+    public void draw(float alpha) throws Exception
     {
         Services.getService(GameStateService.class).render(window);
+        modLoader.onDraw();
         window.update();
     }
 
     public void tick() throws Exception
     {
         Services.getService(GameStateService.class).update(1f, mouseInput);
+        modLoader.onTick();
     }
 
     public void tick(float delta) throws Exception
     {
         Services.getService(GameStateService.class).update(delta, mouseInput);
+        modLoader.onTick();
     }
 
 }

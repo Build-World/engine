@@ -47,7 +47,7 @@ public class GameState implements State {
 
     private final int viewDistance = 8 * 16;
     private final int loadDistance = viewDistance + 1 * 16;
-    private final int dayLength = 20;
+    private final int dayLength = 30;
 
     private World world;
 
@@ -174,12 +174,14 @@ public class GameState implements State {
         directionalLight.getDirection().y = (float) Math.cos(angRad);
 
         int camX = (int)camera.getPosition().x, camZ= (int)camera.getPosition().z;
+        if(camX != camXOld || camZ != camZOld)
+        {
+            Vector2f[] coords = world.getMovedRegionCoords(camXOld,camZOld,camX,camZ, loadDistance);
+            Vector2f[] flipped = world.flipMovedRegionCoords(coords, camXOld,camZOld,loadDistance, true, true);
 
-        Vector2f[] coords = world.getMovedRegionCoords(camXOld,camZOld,camX,camZ, loadDistance);
-        Vector2f[] flipped = world.flipMovedRegionCoords(coords, camXOld,camZOld,loadDistance, true, true);
-
-        scene.removeGameItems(world.getMovedRegion(world.translateRegionCoords(flipped, new Vector2f(camX - camXOld, camZ - camZOld)), 0, world.worldHeight));
-        scene.setGameItems(world.getMovedRegion(coords, 0, world.worldHeight));
+            scene.removeGameItems(world.getMovedRegion(world.translateRegionCoords(flipped, new Vector2f(camX - camXOld, camZ - camZOld)), 0, world.worldHeight));
+            scene.setGameItems(world.getMovedRegion(coords, 0, world.worldHeight));
+        }
     }
 
     @Override
