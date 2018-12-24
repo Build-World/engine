@@ -110,16 +110,41 @@ public class World {
         return region.toArray(new GameItem[0]);
     }
 
+    /**
+     * Returns a list of coordinates consumed by the (X2,Z2) region which were not consumed by the (X1,Z1) region.
+     * All regions must be odd number sizes, this is enforced by passing in a radius.
+     * Algorithm is more efficient with smaller moves, and its worst cases are:
+     *      [abs(x2-x1) >= (radius * 2 + 1), abs(z2-z1) >= (radius * 2 + 1)]
+     *      Algorithm only iterates for each extra consumed coordinate.
+     * @param x1 x1
+     * @param z1 z1
+     * @param x2 x2
+     * @param z2 z2
+     * @param radius The distance from the center of a region to one edge
+     * @return List of Vector2f coordinate pairs. X->X, Y->Z
+     */
     public Vector2f[] getMovedRegionCoords(int x1, int z1, int x2, int z2, int radius) {
+        // If there is no movement, return an empty array
         if(x1 == x2 && z1 == z2)
             return new Vector2f[0];
 
         List<Vector2f> coords = new ArrayList<>();
 
-        // diameter <-> n
+        // diameter represents the side length of a square
         int diameter = radius * 2 + 1;
+
+        // whether we are flipping on the X and/or Z axis to get our L to the top right quadrant
         boolean xFlip = false, zFlip = false;
 
+        /*
+         * VECTOR LIST:
+         * P1: The original point
+         * P2: The point we are moving to
+         * P3: The point where P2 maps to the top right quadrant, if P2 is already in the top right, then P3==P2
+         * P4: A coordinate
+         * flip: The absolute values of the difference of (P2 - P1)
+         * reverseFlip: Maps P4 from the top right quadrant to its expected quadrant
+         */
         Vector2f p1 = new Vector2f(x1, z1);
         Vector2f p2 = new Vector2f(x2, z2);
 
@@ -137,6 +162,8 @@ public class World {
 
         Vector2f p3 = new Vector2f(p1).add(flip);
 
+        // Gets the coordinates of the rectangle on the right of the square
+        // Only runs if there is movement on the X axis
         for (int i = 0; i < flip.x; i++) {
             for (int j = 0; j < diameter; j++) {
                 Vector2f reverseFlip = new Vector2f(0, 0);
@@ -154,6 +181,8 @@ public class World {
             }
         }
 
+        // Gets the coordinates of the rectangle on the top of the square
+        // Only runs if there is movement on the Z axis
         for (int i = 0; i < (diameter - flip.x); i++) {
             for (int j = 0; j < flip.y; j++) {
                 Vector2f reverseFlip = new Vector2f(0, 0);
