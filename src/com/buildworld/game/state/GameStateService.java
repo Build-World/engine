@@ -65,7 +65,7 @@ public class GameStateService extends Service implements State {
     }
 
     @Override
-    public void update(float interval, MouseInput mouseInput) {
+    public void update(float interval, MouseInput mouseInput) throws Exception{
         this.currentState.update(interval, mouseInput);
     }
 

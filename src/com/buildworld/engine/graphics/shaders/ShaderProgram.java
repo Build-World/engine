@@ -1,4 +1,4 @@
-package com.buildworld.engine.graphics;
+package com.buildworld.engine.graphics.shaders;
 
 import java.nio.FloatBuffer;
 import java.util.HashMap;

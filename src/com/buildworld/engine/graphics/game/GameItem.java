@@ -1,11 +1,11 @@
-package com.buildworld.game;
+package com.buildworld.engine.graphics.game;
 
 import org.joml.Vector3f;
 import com.buildworld.engine.graphics.mesh.Mesh;
 
 public class GameItem {
 
-    private final Mesh mesh;
+    private Mesh mesh;
     
     private final Vector3f position;
     
@@ -13,12 +13,15 @@ public class GameItem {
 
     private final Vector3f rotation;
 
-    public GameItem(Mesh mesh) {
-        this.mesh = mesh;
+    public GameItem() {
         position = new Vector3f(0, 0, 0);
-        scale = 1;
+        scale = 1f;
         rotation = new Vector3f(0, 0, 0);
-        scale = 0.5f;
+    }
+
+    public GameItem(Mesh mesh) {
+        this();
+        this.mesh = mesh;
     }
 
     public Vector3f getPosition() {
@@ -51,5 +54,9 @@ public class GameItem {
     
     public Mesh getMesh() {
         return mesh;
+    }
+
+    public void setMesh(Mesh mesh) {
+        this.mesh = mesh;
     }
 }

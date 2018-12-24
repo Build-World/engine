@@ -4,17 +4,20 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 
-import com.buildworld.engine.graphics.Texture;
+import com.buildworld.engine.graphics.game.GameItem;
+import com.buildworld.engine.graphics.textures.Texture;
 import com.buildworld.engine.graphics.materials.Material;
 import org.lwjgl.system.MemoryUtil;
 
 public class Mesh {
+
     private final int vaoId;
 
     private final List<Integer> vboIdList;
@@ -104,7 +107,7 @@ public class Mesh {
         return vertexCount;
     }
 
-    public void render() {
+    private void initRender() {
         Texture texture = material.getTexture();
         if (texture != null) {
             // Activate firs texture bank
@@ -118,15 +121,37 @@ public class Mesh {
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
         glEnableVertexAttribArray(2);
+    }
 
-        glDrawElements(GL_TRIANGLES, getVertexCount(), GL_UNSIGNED_INT, 0);
-
+    private void endRender() {
         // Restore state
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
         glDisableVertexAttribArray(2);
         glBindVertexArray(0);
+
         glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    public void render() {
+        initRender();
+
+        glDrawElements(GL_TRIANGLES, getVertexCount(), GL_UNSIGNED_INT, 0);
+
+        endRender();
+    }
+
+    public void renderList(List<GameItem> gameItems, Consumer<GameItem> consumer) {
+        initRender();
+
+        for (GameItem gameItem : gameItems) {
+            // Set up data requiered by gameItem
+            consumer.accept(gameItem);
+            // Render this game item
+            glDrawElements(GL_TRIANGLES, getVertexCount(), GL_UNSIGNED_INT, 0);
+        }
+
+        endRender();
     }
 
     public void cleanUp() {
@@ -142,6 +167,20 @@ public class Mesh {
         Texture texture = material.getTexture();
         if (texture != null) {
             texture.cleanup();
+        }
+
+        // Delete the VAO
+        glBindVertexArray(0);
+        glDeleteVertexArrays(vaoId);
+    }
+
+    public void deleteBuffers() {
+        glDisableVertexAttribArray(0);
+
+        // Delete the VBOs
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        for (int vboId : vboIdList) {
+            glDeleteBuffers(vboId);
         }
 
         // Delete the VAO

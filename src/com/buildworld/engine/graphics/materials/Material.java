@@ -1,6 +1,6 @@
 package com.buildworld.engine.graphics.materials;
 
-import com.buildworld.engine.graphics.Texture;
+import com.buildworld.engine.graphics.textures.Texture;
 import org.joml.Vector4f;
 
 public class Material {

@@ -77,7 +77,7 @@ public class Game {
     }
 
     // Called when we are ready to begin looping
-    public void play()
+    public void play() throws Exception
     {
         while(running && !window.windowShouldClose())
         {
@@ -86,7 +86,7 @@ public class Game {
     }
 
     // Loop controls the game flow
-    public void loop()
+    public void loop() throws Exception
     {
         this.input();
 
@@ -128,12 +128,12 @@ public class Game {
         window.update();
     }
 
-    public void tick()
+    public void tick() throws Exception
     {
         Services.getService(GameStateService.class).update(1f, mouseInput);
     }
 
-    public void tick(float delta)
+    public void tick(float delta) throws Exception
     {
         Services.getService(GameStateService.class).update(delta, mouseInput);
     }
