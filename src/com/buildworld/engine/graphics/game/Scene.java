@@ -45,7 +45,8 @@ public class Scene {
         List<GameItem> list = meshMap.get(mesh);
         if(list != null)
         {
-            list.remove(gameItem);
+            list.removeIf(gameItem::equals);
+            //list.remove(gameItem);
         }
     }
 

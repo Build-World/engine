@@ -45,7 +45,7 @@ public class GameState implements State {
 
     private static final float CAMERA_POS_STEP = 0.6f;
 
-    private final int viewDistance = 8 * 16;
+    private final int viewDistance = 4 * 16;
     private final int loadDistance = viewDistance + 1 * 16;
     private final int dayLength = 30;
 
@@ -73,7 +73,7 @@ public class GameState implements State {
         camera.getPosition().y = 32f;
         camera.getPosition().z = 0f;
 
-        scene.setGameItems(world.getRegion((int)camera.getPosition().x, (int)camera.getPosition().y, (int)camera.getPosition().z, loadDistance));
+        //scene.setGameItems(world.getRegion((int)camera.getPosition().x, (int)camera.getPosition().y, (int)camera.getPosition().z, loadDistance));
 
         // Setup  SkyBox
         SkyBox skyBox = new SkyBox("D:\\Programming\\Projects\\Build-World\\engine\\resources/models/skybox.obj", "D:\\Programming\\Projects\\Build-World\\engine\\resources/textures/skybox.png");
@@ -131,6 +131,8 @@ public class GameState implements State {
     public void update(float interval, MouseInput mouseInput) throws Exception {
 
         int camXOld = (int)camera.getPosition().x, camZOld= (int)camera.getPosition().z;
+
+        scene.setGameItems(world.getUpdatedInRange(camXOld, camZOld, loadDistance));
 
         // Update camera based on mouse
         if (mouseInput.isRightButtonPressed()) {
@@ -218,5 +220,21 @@ public class GameState implements State {
     @Override
     public void exit() {
 
+    }
+
+    public int getViewDistance() {
+        return viewDistance;
+    }
+
+    public int getLoadDistance() {
+        return loadDistance;
+    }
+
+    public int getDayLength() {
+        return dayLength;
+    }
+
+    public World getWorld() {
+        return world;
     }
 }

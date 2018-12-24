@@ -83,17 +83,18 @@ public class Game {
     public void ready() throws Exception
     {
         Services.getService(GameStateService.class).ready();
+        modLoader.onReady();
     }
 
     // Called when we are ready to begin looping
     public void play() throws Exception
     {
+        modLoader.onPlay();
+
         while(running && !window.windowShouldClose())
         {
             this.loop();
         }
-
-        modLoader.onPlay();
     }
 
     // Loop controls the game flow

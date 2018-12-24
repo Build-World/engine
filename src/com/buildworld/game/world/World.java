@@ -20,6 +20,9 @@ public class World {
 
     private HashMap<Integer, HashMap<Integer, HashMap<Integer, GameItem>>> map;
 
+    private List<GameItem> added = new ArrayList<>();
+    private List<GameItem> removed = new ArrayList<>();
+
     public World() throws Exception {
         int dimension = worldSize * 16;
         map = new HashMap<>(); // x, z, y
@@ -44,11 +47,12 @@ public class World {
                     int x = i - (dimension / 2);
                     int y = w;
                     int z = j - (dimension / 2);
-                    gameItem.setPosition(x, y, z);
                     setBlock(x, y, z, gameItem);
                 }
             }
         }
+
+        //added.clear();
     }
 
     public GameItem getBlock(int x, int y, int z) {
@@ -63,7 +67,9 @@ public class World {
         if (y < 0)
             throw new Exception("cant have a block below 0 in the height axis");
         // Puts a block into the map but if the hashmaps dont exist it will create it
+        gameItem.setPosition(x,y,z);
         map.computeIfAbsent(x, k -> new HashMap<>()).computeIfAbsent(z, l -> new HashMap<>()).put(y, gameItem);
+        added.add(gameItem);
     }
 
     public boolean isAir(int x, int y, int z) {
@@ -254,6 +260,25 @@ public class World {
             }
         }
 
+        return region.toArray(new GameItem[0]);
+    }
+
+    public GameItem[] getUpdatedInRange(int x, int z, int radius)
+    {
+        if(added.size() < 1)
+            return new GameItem[0];
+
+        List<GameItem> region = new ArrayList<>();
+        for(GameItem gameItem : added)
+        {
+            int gix = (int)gameItem.getPosition().x;
+            int giz = (int)gameItem.getPosition().z;
+            if(gix >= (x - radius) && gix <= (x + radius) && giz >= (z - radius) && giz <= (z + radius))
+            {
+                region.add(gameItem);
+            }
+        }
+        this.added.clear();
         return region.toArray(new GameItem[0]);
     }
 
