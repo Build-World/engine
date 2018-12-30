@@ -1,12 +1,11 @@
 package com.buildworld.game.world;
 
-import com.buildworld.engine.graphics.game.GameItem;
-import com.buildworld.engine.graphics.materials.Material;
-import com.buildworld.engine.graphics.mesh.Mesh;
-import com.buildworld.engine.graphics.mesh.meshes.CubeMesh;
-import com.buildworld.engine.graphics.textures.Texture;
-import com.buildworld.engine.utils.SimplexNoise;
+import com.buildworld.game.blocks.Block;
+import com.buildworld.game.events.IUpdate;
+import com.buildworld.game.events.UpdateService;
+import com.shawnclake.morgencore.core.component.services.Services;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,89 +13,94 @@ import java.util.List;
 
 public class World {
 
-    private final int worldSize = 64;
-    public final int worldHeight = 256;
-    private final boolean generateSurfaceLayerOnly = true;
+    private HashMap<Integer, HashMap<Integer, HashMap<Integer, Block>>> map;
 
-    private HashMap<Integer, HashMap<Integer, HashMap<Integer, GameItem>>> map;
-
-    private List<GameItem> added = new ArrayList<>();
-    private List<GameItem> removed = new ArrayList<>();
+    private List<Block> added = new ArrayList<>();
+    private List<Block> removed = new ArrayList<>();
 
     public World() throws Exception {
-        int dimension = worldSize * 16;
         map = new HashMap<>(); // x, z, y
-
-        float reflectance = 1f;
-        Texture texture = new Texture("D:\\Programming\\Projects\\Build-World\\engine\\resources/textures/grassblock.png");
-        Material material = new Material(texture, reflectance);
-        Mesh cube = new CubeMesh().make(material);
-
-        float blockScale = 0.5f;
-
-        SimplexNoise noise = new SimplexNoise();
-
-        for (int i = 0; i < dimension; i++) {
-            for (int j = 0; j < dimension; j++) {
-                int height = (int) ((noise.eval(i / (float) worldSize, j / (float) worldSize) + 1f) * 16f);
-                for (int w = 0; w < height; w++) {
-                    if (generateSurfaceLayerOnly && w != height - 1)
-                        continue;
-                    GameItem gameItem = new GameItem(cube);
-                    gameItem.setScale(blockScale);
-                    int x = i - (dimension / 2);
-                    int y = w;
-                    int z = j - (dimension / 2);
-                    setBlock(x, y, z, gameItem);
-                }
-            }
-        }
-
-        //added.clear();
     }
 
-    public GameItem getBlock(int x, int y, int z) {
+    public Block getBlock(int x, int y, int z) {
         try {
             return map.get(x).get(z).get(y);
         } catch (Exception e) {
             return null;
         }
     }
+    
+    public Block getBlock(Vector3f coordinate)
+    {
+        return getBlock((int)coordinate.x, (int)coordinate.y, (int)coordinate.z);
+    }
 
-    public void setBlock(int x, int y, int z, GameItem gameItem) throws Exception {
+    public void setBlock(int x, int y, int z, Block block) throws Exception {
         if (y < 0)
             throw new Exception("cant have a block below 0 in the height axis");
+        if(block instanceof IUpdate)
+        {
+            if(((IUpdate)block).requiresUpdates())
+            {
+                Services.getService(UpdateService.class).add((IUpdate)block);
+            }
+        }
+
         // Puts a block into the map but if the hashmaps dont exist it will create it
-        gameItem.setPosition(x,y,z);
-        map.computeIfAbsent(x, k -> new HashMap<>()).computeIfAbsent(z, l -> new HashMap<>()).put(y, gameItem);
-        added.add(gameItem);
+        block.setPosition(x,y,z);
+        map.computeIfAbsent(x, k -> new HashMap<>()).computeIfAbsent(z, l -> new HashMap<>()).put(y, block);
+        added.add(block);
+    }
+    
+    public void setBlock(Vector3f coordinate, Block block) throws Exception
+    {
+        setBlock((int)coordinate.x, (int)coordinate.y, (int)coordinate.z, block);
     }
 
     public boolean isAir(int x, int y, int z) {
-        if (getBlock(x, y, z) != null)
-            return true;
-        return false;
+        return getBlock(x, y, z) == null;
+    }
+    
+    public boolean isAir(Vector3f coordinate)
+    {
+        return isAir((int)coordinate.x, (int)coordinate.y, (int)coordinate.z);
     }
 
-    public GameItem[] getRegion(int x, int y, int z, int radius) {
+    public Block getNeighbor(Vector3f coordinate, Vector3f direction)
+    {
+        return getBlock(new Vector3f(coordinate).add(direction));
+    }
+
+    public BlockChunk getNeighbors(Vector3f coordinate)
+    {
+        BlockChunk blockChunk = new BlockChunk(getBlock(coordinate));
+        blockChunk.setNorth(getNeighbor(coordinate, Directions.NORTH));
+        blockChunk.setSouth(getNeighbor(coordinate, Directions.SOUTH));
+        blockChunk.setEast(getNeighbor(coordinate, Directions.EAST));
+        blockChunk.setWest(getNeighbor(coordinate, Directions.WEST));
+        blockChunk.setUp(getNeighbor(coordinate, Directions.UP));
+        blockChunk.setDown(getNeighbor(coordinate, Directions.DOWN));
+        return blockChunk;
+    }
+
+    public Block[] getRegion(int x, int y, int z, int radius) {
         int diameter = radius * 2 + 1;
-        diameter = worldHeight;
-        List<GameItem> region = new ArrayList<>();
+        List<Block> region = new ArrayList<>();
         for (int i = radius * -1; i <= radius; i++) {
             for (int j = radius * -1; j <= radius; j++) {
-                for (int k = 0; k < diameter; k++) {
-                    GameItem gameItem = getBlock(x + i, k, z + j);
-                    if (gameItem != null) {
-                        region.add(gameItem);
+                for (int k = 0; k < y; k++) {
+                    Block block = getBlock(x + i, k, z + j);
+                    if (block != null) {
+                        region.add(block);
                     }
                 }
             }
         }
-        return region.toArray(new GameItem[0]);
+        return region.toArray(new Block[0]);
     }
 
-    public GameItem[] getRegion(int x1, int y1, int z1, int x2, int y2, int z2) {
-        List<GameItem> region = new ArrayList<>();
+    public Block[] getRegion(int x1, int y1, int z1, int x2, int y2, int z2) {
+        List<Block> region = new ArrayList<>();
 
         int xs = Math.min(x1, x2);
         int ys = Math.min(y1, y2);
@@ -105,15 +109,15 @@ public class World {
         for (int i = xs; i <= Math.max(x1, x2); i++) {
             for (int j = zs; j <= Math.max(z1, z2); j++) {
                 for (int k = ys; k <= Math.max(y1, y2); k++) {
-                    GameItem gameItem = getBlock(i, k, j);
-                    if (gameItem != null) {
-                        region.add(gameItem);
+                    Block block = getBlock(i, k, j);
+                    if (block != null) {
+                        region.add(block);
                     }
                 }
             }
         }
 
-        return region.toArray(new GameItem[0]);
+        return region.toArray(new Block[0]);
     }
 
     /**
@@ -243,43 +247,43 @@ public class World {
         return translatedCoords;
     }
 
-    public GameItem[] getMovedRegion(int x1, int y1, int z1, int x2, int y2, int z2, int radius) {
+    public Block[] getMovedRegion(int x1, int y1, int z1, int x2, int y2, int z2, int radius) {
         return getMovedRegion(getMovedRegionCoords(x1, z1, x2, z2, radius), y1, y2);
     }
 
-    public GameItem[] getMovedRegion(Vector2f[] coords, int y1, int y2) {
-        List<GameItem> region = new ArrayList<>();
+    public Block[] getMovedRegion(Vector2f[] coords, int y1, int y2) {
+        List<Block> region = new ArrayList<>();
 
         for (Vector2f coord : coords)
         {
             for (int k = y1; k < y2; k++) {
-                GameItem gameItem = getBlock((int)coord.x(), k, (int)coord.y());
-                if (gameItem != null) {
-                    region.add(gameItem);
+                Block block = getBlock((int)coord.x(), k, (int)coord.y());
+                if (block != null) {
+                    region.add(block);
                 }
             }
         }
 
-        return region.toArray(new GameItem[0]);
+        return region.toArray(new Block[0]);
     }
 
-    public GameItem[] getUpdatedInRange(int x, int z, int radius)
+    public Block[] getUpdatedInRange(int x, int z, int radius)
     {
         if(added.size() < 1)
-            return new GameItem[0];
+            return new Block[0];
 
-        List<GameItem> region = new ArrayList<>();
-        for(GameItem gameItem : added)
+        List<Block> region = new ArrayList<>();
+        for(Block block : added)
         {
-            int gix = (int)gameItem.getPosition().x;
-            int giz = (int)gameItem.getPosition().z;
+            int gix = (int)block.getPosition().x;
+            int giz = (int)block.getPosition().z;
             if(gix >= (x - radius) && gix <= (x + radius) && giz >= (z - radius) && giz <= (z + radius))
             {
-                region.add(gameItem);
+                region.add(block);
             }
         }
         this.added.clear();
-        return region.toArray(new GameItem[0]);
+        return region.toArray(new Block[0]);
     }
 
 

@@ -1,5 +1,10 @@
 package com.buildworld.game.mod;
 
+import com.buildworld.engine.graphics.Window;
+import com.buildworld.game.blocks.Block;
+
+import java.util.ArrayList;
+
 public interface IMod {
 
     String getKey();
@@ -7,7 +12,7 @@ public interface IMod {
     String getDescription();
     String getVersion();
 
-    default void onBoot() throws Exception {}
+    default void onBoot(Window window) throws Exception {}
     default void onLoad() throws Exception {}
     default void onReady() throws Exception {}
     default void onPlay() throws Exception {}

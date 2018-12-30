@@ -1,5 +1,6 @@
 package com.buildworld.game.mod;
 
+import com.buildworld.engine.graphics.Window;
 import com.shawnclake.morgencore.core.component.filesystem.Files;
 import com.shawnclake.morgencore.core.component.services.Services;
 
@@ -43,7 +44,7 @@ public class ModLoader implements IMod {
     }
 
     @Override
-    public void onBoot() throws Exception {
+    public void onBoot(Window window) throws Exception {
         Files fileHelper = new Files();
         List<File> files = fileHelper.listFilesRecursively(modsPath);
         for(File file : files)
@@ -61,7 +62,7 @@ public class ModLoader implements IMod {
 
         for(IMod mod : modService().getItems())
         {
-            mod.onBoot();
+            mod.onBoot(window);
         }
     }
 

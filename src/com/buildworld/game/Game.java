@@ -2,12 +2,13 @@ package com.buildworld.game;
 
 import com.buildworld.engine.io.MouseInput;
 import com.buildworld.engine.graphics.Window;
+import com.buildworld.game.blocks.properties.BlockPropertyService;
 import com.buildworld.game.blocks.BlockService;
+import com.buildworld.game.events.UpdateService;
 import com.buildworld.game.items.ItemService;
 import com.buildworld.game.mod.ModLoader;
 import com.buildworld.game.mod.ModService;
 import com.buildworld.game.state.*;
-import com.buildworld.game.state.states.GameState;
 import com.shawnclake.morgencore.core.component.services.Services;
 
 
@@ -42,7 +43,7 @@ public class Game {
         window = new Window(name, 640, 480, vSync);
         gameTime = new GameTime(TARGET_TICKS, TARGET_FPS);
         mouseInput = new MouseInput();
-        modLoader = new ModLoader("D:\\Programming\\Projects\\Build-World\\mods");
+        modLoader = new ModLoader("C:\\Users\\using\\Desktop\\shawn\\build-world\\mods");
     }
 
     public void dispose() {
@@ -60,22 +61,20 @@ public class Game {
         new GameStatesService();
         new GameStateService();
 
-        State state = new GameState();
-        state.init(window);
-        Services.getService(GameStatesService.class).add(state);
+        new UpdateService();
 
         new BlockService();
+        new BlockPropertyService();
         new ItemService();
 
         new ModService();
-        modLoader.onBoot();
+        modLoader.onBoot(window);
     }
 
     // Loads features and services
     // Loads blocks, items, mods, etc.
     public void load() throws Exception
     {
-        Services.getService(GameStateService.class).change(GameState.class);
         modLoader.onLoad();
     }
 
@@ -146,12 +145,14 @@ public class Game {
     {
         Services.getService(GameStateService.class).update(1f, mouseInput);
         modLoader.onTick();
+        Services.getService(UpdateService.class).trigger();
     }
 
     public void tick(float delta) throws Exception
     {
         Services.getService(GameStateService.class).update(delta, mouseInput);
         modLoader.onTick();
+        Services.getService(UpdateService.class).trigger();
     }
 
 }

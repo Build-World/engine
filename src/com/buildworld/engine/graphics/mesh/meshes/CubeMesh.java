@@ -4,7 +4,7 @@ import com.buildworld.engine.graphics.mesh.IMesh;
 
 public class CubeMesh implements IMesh {
 
-    public static final String path = "D:\\Programming\\Projects\\Build-World\\engine\\resources/models/cube.obj";
+    public static final String path = "C:\\Users\\using\\Desktop\\shawn\\build-world\\engine\\resources/models/cube.obj";
 
     @Override
     public String getPath() {
