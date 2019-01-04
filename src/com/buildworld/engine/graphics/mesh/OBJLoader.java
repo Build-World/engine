@@ -3,14 +3,14 @@ package com.buildworld.engine.graphics.mesh;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.buildworld.engine.utils.Utils;
+import com.buildworld.engine.utils.FileUtils;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public class OBJLoader {
 
     public static Mesh loadMesh(String fileName) throws Exception {
-        List<String> lines = Utils.readAllLines(fileName);
+        List<String> lines = FileUtils.readAllLines(fileName);
         
         List<Vector3f> vertices = new ArrayList<>();
         List<Vector2f> textures = new ArrayList<>();

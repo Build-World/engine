@@ -1,8 +1,11 @@
-package com.buildworld.game.world;
+package com.buildworld.game.world.areas;
 
 import com.buildworld.game.blocks.Block;
+import com.buildworld.game.world.interfaces.IArea;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 
-public class BlockChunk {
+public class BlockChunk implements IArea {
 
     private Block target;
     private Block north;
@@ -76,5 +79,14 @@ public class BlockChunk {
 
     public Block getTarget() {
         return target;
+    }
+
+    @Override
+    public Vector2f getLocation2D() {
+        return new Vector2f(target.getPosition().x, target.getPosition().z);
+    }
+
+    public Vector3f getLocation3D() {
+        return new Vector3f(target.getPosition());
     }
 }

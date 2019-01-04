@@ -6,7 +6,8 @@ import com.buildworld.engine.graphics.mesh.meshes.CubeMesh;
 import com.buildworld.game.blocks.properties.BlockPropertyService;
 import com.buildworld.game.blocks.properties.IBlockProperty;
 import com.buildworld.game.blocks.types.IBlockType;
-import com.buildworld.game.blocks.types.Mundane;
+import com.buildworld.game.world.areas.BlockChunk;
+import com.buildworld.game.world.areas.Chunk;
 import com.shawnclake.morgencore.core.component.services.Services;
 
 import java.util.ArrayList;
@@ -18,47 +19,49 @@ abstract public class Block extends GameItem {
     public String name;
     public Material material;
     public IBlockType type;
+    private Chunk chunk;
     public List<IBlockProperty> blockProperties;
 
-
     public Block(String namespace, String name, Material material) throws Exception {
-        super(new CubeMesh().make(material));
+        this(namespace, name, new CubeMesh().make(material), null, null);
         this.material = material;
-        this.namespace = namespace;
-        this.name = name;
-        this.type = Mundane.make();
-        this.blockProperties = new ArrayList<>();
-        this.setScale(0.5f);
+    }
 
-        create();
-        ready();
+    public Block(String namespace, String name, Material material, Chunk chunk) throws Exception {
+        this(namespace, name, new CubeMesh().make(material), null, chunk);
+        this.material = material;
     }
 
     public Block(String namespace, String name, Material material, IBlockType type) throws Exception {
-        super(new CubeMesh().make(material));
+        this(namespace, name, new CubeMesh().make(material), type, null);
         this.material = material;
-        this.namespace = namespace;
-        this.name = name;
-        this.type = type;
-        this.blockProperties = new ArrayList<>();
-        this.setScale(0.5f);
-
-        create();
-        ready();
     }
 
-    public Block(String namespace, String name, Mesh mesh, IBlockType type) throws Exception {
+    public Block(String namespace, String name, Material material, IBlockType type, Chunk chunk) throws Exception {
+        this(namespace, name, new CubeMesh().make(material), type, chunk);
+        this.material = material;
+    }
+
+    private Block(String namespace, String name, Mesh mesh, IBlockType type, Chunk chunk) throws Exception {
         super();
         this.setMesh(mesh);
         this.namespace = namespace;
         this.name = name;
         this.type = type;
+        this.chunk = chunk;
         this.blockProperties = new ArrayList<>();
         this.setScale(0.5f);
 
         create();
         ready();
     }
+
+    public Block(Block original) throws Exception
+    {
+        this(original.namespace, original.name, original.material, original.type);
+    }
+
+    abstract public Block copy() throws Exception;
 
     public String getNamespace() {
         return namespace;
@@ -112,6 +115,18 @@ abstract public class Block extends GameItem {
 
     public void register() {
         Services.getService(BlockService.class).add(this);
+    }
+
+    public void updateNeighbors() throws Exception {
+        chunk.getRegion().getWorld().updateBlockNeighbors(getPosition());
+    }
+
+    public void updateNeighbors(Block ignore) throws Exception {
+        chunk.getRegion().getWorld().updateBlockNeighbors(getPosition(), ignore);
+    }
+
+    public BlockChunk getNeighbors() throws Exception {
+        return chunk.getRegion().getWorld().getBlockNeighbors(getPosition());
     }
 
 }

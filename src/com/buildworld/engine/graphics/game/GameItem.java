@@ -19,6 +19,14 @@ public class GameItem {
         rotation = new Vector3f(0, 0, 0);
     }
 
+    public GameItem(GameItem original)
+    {
+        mesh = original.mesh;
+        position = new Vector3f(original.position);
+        rotation = new Vector3f(original.rotation);
+        scale = original.scale;
+    }
+
     public GameItem(Mesh mesh) {
         this();
         this.mesh = mesh;

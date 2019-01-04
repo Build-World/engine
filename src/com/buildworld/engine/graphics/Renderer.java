@@ -8,11 +8,11 @@ import com.buildworld.engine.graphics.lights.SceneLight;
 import com.buildworld.engine.graphics.lights.SpotLight;
 import com.buildworld.engine.graphics.mesh.Mesh;
 import com.buildworld.engine.graphics.shaders.ShaderProgram;
+import com.buildworld.engine.utils.FileUtils;
 import com.buildworld.game.hud.IHud;
 import org.joml.Matrix4f;
 import static org.lwjgl.opengl.GL11.*;
 import com.buildworld.engine.graphics.game.GameItem;
-import com.buildworld.engine.utils.Utils;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
@@ -57,8 +57,8 @@ public class Renderer {
 
     private void setupSkyBoxShader() throws Exception {
         skyBoxShaderProgram = new ShaderProgram();
-        skyBoxShaderProgram.createVertexShader(Utils.loadResource("C:\\Users\\using\\Desktop\\shawn\\build-world\\engine\\resources/shaders/sb_vertex.vs"));
-        skyBoxShaderProgram.createFragmentShader(Utils.loadResource("C:\\Users\\using\\Desktop\\shawn\\build-world\\engine\\resources/shaders/sb_fragment.fs"));
+        skyBoxShaderProgram.createVertexShader(FileUtils.loadResource("C:\\Users\\using\\Desktop\\shawn\\build-world\\engine\\resources/shaders/sb_vertex.vs"));
+        skyBoxShaderProgram.createFragmentShader(FileUtils.loadResource("C:\\Users\\using\\Desktop\\shawn\\build-world\\engine\\resources/shaders/sb_fragment.fs"));
         skyBoxShaderProgram.link();
 
         // Create uniforms for projection matrix
@@ -71,8 +71,8 @@ public class Renderer {
     private void setupSceneShader() throws Exception {
         // Create shader
         sceneShaderProgram = new ShaderProgram();
-        sceneShaderProgram.createVertexShader(Utils.loadResource("C:\\Users\\using\\Desktop\\shawn\\build-world\\engine\\resources/shaders/vertex.vs"));
-        sceneShaderProgram.createFragmentShader(Utils.loadResource("C:\\Users\\using\\Desktop\\shawn\\build-world\\engine\\resources/shaders/fragment.fs"));
+        sceneShaderProgram.createVertexShader(FileUtils.loadResource("C:\\Users\\using\\Desktop\\shawn\\build-world\\engine\\resources/shaders/vertex.vs"));
+        sceneShaderProgram.createFragmentShader(FileUtils.loadResource("C:\\Users\\using\\Desktop\\shawn\\build-world\\engine\\resources/shaders/fragment.fs"));
         sceneShaderProgram.link();
 
         // Create uniforms for modelView and projection matrices and texture
@@ -91,8 +91,8 @@ public class Renderer {
 
     private void setupHudShader() throws Exception {
         hudShaderProgram = new ShaderProgram();
-        hudShaderProgram.createVertexShader(Utils.loadResource("C:\\Users\\using\\Desktop\\shawn\\build-world\\engine\\resources/shaders/hud_vertex.vs"));
-        hudShaderProgram.createFragmentShader(Utils.loadResource("C:\\Users\\using\\Desktop\\shawn\\build-world\\engine\\resources/shaders/hud_fragment.fs"));
+        hudShaderProgram.createVertexShader(FileUtils.loadResource("C:\\Users\\using\\Desktop\\shawn\\build-world\\engine\\resources/shaders/hud_vertex.vs"));
+        hudShaderProgram.createFragmentShader(FileUtils.loadResource("C:\\Users\\using\\Desktop\\shawn\\build-world\\engine\\resources/shaders/hud_fragment.fs"));
         hudShaderProgram.link();
 
         // Create uniforms for Ortographic-model projection matrix and base colour

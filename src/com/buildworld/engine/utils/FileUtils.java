@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Scanner;
 import com.shawnclake.morgencore.core.component.filesystem.FileRead;
 
-public class Utils {
+public class FileUtils {
 
     public static String loadResource(String fileName) throws Exception {
         String result;
-//        try (InputStream in = Class.forName(Utils.class.getName()).getResourceAsStream(fileName);
+//        try (InputStream in = Class.forName(FileUtils.class.getName()).getResourceAsStream(fileName);
 //             Scanner scanner = new Scanner(in)) {
 //            result = scanner.useDelimiter("\\A").next();
 //        }

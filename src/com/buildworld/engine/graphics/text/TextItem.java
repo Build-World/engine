@@ -7,7 +7,7 @@ import com.buildworld.engine.graphics.game.GameItem;
 import com.buildworld.engine.graphics.materials.Material;
 import com.buildworld.engine.graphics.mesh.Mesh;
 import com.buildworld.engine.graphics.textures.FontTexture;
-import com.buildworld.engine.utils.Utils;
+import com.buildworld.engine.utils.FileUtils;
 
 public class TextItem extends GameItem {
 
@@ -79,8 +79,8 @@ public class TextItem extends GameItem {
             startx += charInfo.getWidth();
         }
 
-        float[] posArr = Utils.listToArray(positions);
-        float[] textCoordsArr = Utils.listToArray(textCoords);
+        float[] posArr = FileUtils.listToArray(positions);
+        float[] textCoordsArr = FileUtils.listToArray(textCoords);
         int[] indicesArr = indices.stream().mapToInt(i->i).toArray();
         Mesh mesh = new Mesh(posArr, textCoordsArr, normals, indicesArr);
         mesh.setMaterial(new Material(fontTexture.getTexture()));
