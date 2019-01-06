@@ -1,15 +1,13 @@
 package com.buildworld.game.world.generators;
 
 import com.buildworld.engine.interfaces.IKeyNameDescibe;
-import com.buildworld.engine.utils.brushes.BoxBlur;
-import com.buildworld.engine.utils.noise.archive.SimplexNoise;
 import com.buildworld.game.blocks.Block;
-import com.buildworld.game.world.maps.types.FillHeightMap;
-import com.buildworld.game.world.maps.types.HeightMap;
-import com.buildworld.game.world.interfaces.IGenerate;
+import com.buildworld.game.world.RegionState;
 import com.buildworld.game.world.areas.Chunk;
 import com.buildworld.game.world.areas.Region;
 import com.buildworld.game.world.areas.World;
+import com.buildworld.game.world.interfaces.IGenerate;
+import com.buildworld.game.world.maps.types.FillHeightMap;
 import org.joml.Vector2f;
 
 abstract public class Biome implements IGenerate, IKeyNameDescibe {
@@ -141,48 +139,85 @@ abstract public class Biome implements IGenerate, IKeyNameDescibe {
         this.core = core;
     }
 
-//    public Chunk populateChunk(Region region, FillHeightMap heightMap) throws Exception {
-//
-//        for (int i = 0; i < Chunk.size; i++) {
-//            for (int j = 0; j < Chunk.size; j++) {
-//                int height = (int)heightMap.get(i, j);
-//
-//                int rockThickness = height - coreThickness - crustThickness - surfaceThickness;
-//
-//                if (rockThickness < 0)
-//                    throw new Exception("Thickness is too much for generated height. Cannot continue.");
-//
-//                for (int w = 0; w < coreThickness; w++) {
-//                    chunk.setBlock(i, w, j, core.copy());
-//                }
-//
-//                int thickness = coreThickness;
-//
-//                for (int w = thickness; w < (thickness + rockThickness); w++) {
-//                    chunk.setBlock(i, w, j, rock.copy());
-//                }
-//
-//                thickness += rockThickness;
-//
-//                for (int w = thickness; w < (thickness + crustThickness); w++) {
-//                    chunk.setBlock(i, w, j, crust.copy());
-//                }
-//
-//                thickness += crustThickness;
-//
-//                for (int w = thickness; w < (thickness + surfaceThickness); w++) {
-//                    chunk.setBlock(i, w, j, surface.copy());
-//                }
-//
-//            }
-//        }
-//
-//        return chunk;
-//    }
+    public Region generateRegion(FillHeightMap fillHeightMap) throws Exception
+    {
+        Region region = new Region(RegionState.GENERATING);
+        for(int i = 0; i < Region.size; i++)
+        {
+            for(int j = 0; j < Region.size; j++)
+            {
+                region.setChunk(i, j, createFilledChunk(region, fillHeightMap, new Vector2f(i,j)));
+            }
+        }
+        return region;
+    }
 
-//    public Region generate() throws Exception {
-//        return generateRegion();
-//    }
+    public Chunk createFilledChunk(Region region, FillHeightMap heightMap, Vector2f chunkOffset) throws Exception {
 
+        Chunk chunk = new Chunk();
+        chunk.setRegion(region);
+        chunk.setLocation(chunkOffset);
 
+        for (int i = 0; i < Chunk.size; i++) {
+            for (int j = 0; j < Chunk.size; j++) {
+                int top;
+                for(int k = (World.worldHeight - 1); k >= 0; k--)
+                {
+                    if(heightMap.get(i,j,k) == 1) {
+                        top = k;
+                    } else {
+                        continue;
+                    }
+
+                    int rockThickness = top + 1 - getCoreThickness() - getCrustThickness() - getSurfaceThickness();
+
+                    if (rockThickness < 0)
+                        throw new Exception("Thickness is too much for generated height. Cannot continue.");
+
+                    for (int w = 0; w < getCoreThickness(); w++) {
+                        if(heightMap.get(i,j,w) == 0)
+                            continue;
+                        chunk.setBlock(i, w, j, getCore().copy());
+                    }
+
+                    int thickness = getCoreThickness();
+
+                    for (int w = thickness; w < (thickness + rockThickness); w++) {
+                        if(heightMap.get(i,j,w) == 0)
+                            continue;
+                        chunk.setBlock(i, w, j, getRock().copy());
+                    }
+
+                    thickness += rockThickness;
+
+                    for (int w = thickness; w < (thickness + getCrustThickness()); w++) {
+                        if(heightMap.get(i,j,w) == 0)
+                            continue;
+                        chunk.setBlock(i, w, j, getCrust().copy());
+                    }
+
+                    thickness += getCrustThickness();
+
+                    for (int w = thickness; w < (thickness + getSurfaceThickness()); w++) {
+                        if(heightMap.get(i,j,w) == 0)
+                            continue;
+                        chunk.setBlock(i, w, j, getSurface().copy());
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        return chunk;
+    }
+
+    public Region generate(FillHeightMap fillHeightMap) throws Exception {
+        return generateRegion(fillHeightMap);
+    }
+
+    @Override
+    public void generate() {
+
+    }
 }

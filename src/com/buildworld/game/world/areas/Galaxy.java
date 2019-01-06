@@ -1,5 +1,7 @@
 package com.buildworld.game.world.areas;
 
+import com.buildworld.game.world.WorldState;
+
 import java.util.ArrayList;
 
 public class Galaxy {
@@ -8,7 +10,7 @@ public class Galaxy {
 
     public World add() throws Exception
     {
-        World world = new World(8);
+        World world = new World(8, WorldState.UNLOADED);
         worlds.add(world);
         return world;
     }

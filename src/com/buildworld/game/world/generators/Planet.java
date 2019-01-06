@@ -215,6 +215,9 @@ abstract public class Planet implements IGenerate, IKeyNameDescibe {
      */
     private int seed;
 
+    public Planet() {
+    }
+
     public Planet(int seed) {
         this.seed = seed;
     }
@@ -343,25 +346,23 @@ abstract public class Planet implements IGenerate, IKeyNameDescibe {
         return seed;
     }
 
-    public Region generateRegion() throws Exception {
-        Region region = new Region();
-
-        return region;
+    public void setSeed(int seed) {
+        this.seed = seed;
     }
 
-    public FillHeightMap generateChunk(Vector2f regionOffset) throws Exception {
+    public FillHeightMap generateHeightMap(Vector2f regionOffset) throws Exception {
         long start = System.nanoTime();
         Vector2f blockPos = new Vector2f(regionOffset).mul(Region.size).mul(Chunk.size);
         int regionLength = Region.size * Chunk.size;
 
-        FillHeightMap fillHeightMap = new FillHeightMap(regionLength, regionLength, seaLevel * 2);
+        FillHeightMap fillHeightMap = new FillHeightMap(regionLength, regionLength, World.worldHeight);
 
         HeightMap heightMap = new HeightMap(regionLength, regionLength);
         FeatureMap featureMap = new FeatureMap(regionLength, regionLength);
         FrequencyMap frequencyMap = new FrequencyMap(regionLength, regionLength);
 
         // the +4's are due to the 2 long boundares along all edges of the generated cell map
-        CaveMap caveMap = new CaveMap(regionLength + 4, regionLength + 4, (seaLevel * 2) + 4, seed, blockPos);
+        CaveMap caveMap = new CaveMap(regionLength + 4, regionLength + 4, World.worldHeight + 4, seed, blockPos);
 
         SimplexNoise frequencyNoise = new SimplexNoise(seed);
         frequencyNoise.setFeatureSize(frequencyNoiseFeatureSize);

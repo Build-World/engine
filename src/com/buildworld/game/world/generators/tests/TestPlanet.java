@@ -4,12 +4,15 @@ import com.buildworld.game.world.generators.Planet;
 import com.buildworld.game.world.maps.types.FillHeightMap;
 import org.joml.Vector2f;
 
+import java.util.concurrent.TimeUnit;
+
 public class TestPlanet {
     public static void main(String[] args) throws Exception
     {
+        long start = System.nanoTime();
         Planet planet = new MyPlanet(420);
-        FillHeightMap fillHeightMap = planet.generateChunk(new Vector2f(0,0));
-
+        FillHeightMap fillHeightMap = planet.generateHeightMap(new Vector2f(0,0));
+        long end  = System.nanoTime();
 
 
 
@@ -32,5 +35,7 @@ public class TestPlanet {
             }
             System.out.println();
         }
+
+        System.out.println("total: " + (TimeUnit.NANOSECONDS.toMillis(end - start)) + "ms");
     }
 }

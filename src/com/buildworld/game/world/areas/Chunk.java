@@ -63,6 +63,7 @@ public class Chunk implements IArea {
 
         // Puts a block into the map but if the hashmaps dont exist it will create it
         block.setPosition(x,y,z);
+        block.setChunk(this);
         map.computeIfAbsent(x, k -> new HashMap<>()).computeIfAbsent(z, l -> new HashMap<>()).put(y, block);
     }
 

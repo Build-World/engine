@@ -11,7 +11,9 @@ import com.buildworld.game.world.areas.Chunk;
 import com.shawnclake.morgencore.core.component.services.Services;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 abstract public class Block extends GameItem {
 
@@ -22,23 +24,41 @@ abstract public class Block extends GameItem {
     private Chunk chunk;
     public List<IBlockProperty> blockProperties;
 
+    public static Map<Material, Mesh> matMeshes = new HashMap<>();
+
+    public static Mesh getMesh(Material material) throws Exception
+    {
+        if(matMeshes.containsKey(material))
+        {
+            return matMeshes.get(material);
+        } else {
+            Mesh mesh = new CubeMesh().make(material);
+            matMeshes.put(material, mesh);
+            if(matMeshes.size() > 4096)
+            {
+                System.out.println("Block meshes exceeding limits");
+            }
+            return mesh;
+        }
+    }
+
     public Block(String namespace, String name, Material material) throws Exception {
-        this(namespace, name, new CubeMesh().make(material), null, null);
+        this(namespace, name, getMesh(material), null, null);
         this.material = material;
     }
 
     public Block(String namespace, String name, Material material, Chunk chunk) throws Exception {
-        this(namespace, name, new CubeMesh().make(material), null, chunk);
+        this(namespace, name, getMesh(material), null, chunk);
         this.material = material;
     }
 
     public Block(String namespace, String name, Material material, IBlockType type) throws Exception {
-        this(namespace, name, new CubeMesh().make(material), type, null);
+        this(namespace, name, getMesh(material), type, null);
         this.material = material;
     }
 
     public Block(String namespace, String name, Material material, IBlockType type, Chunk chunk) throws Exception {
-        this(namespace, name, new CubeMesh().make(material), type, chunk);
+        this(namespace, name, getMesh(material), type, chunk);
         this.material = material;
     }
 
@@ -81,6 +101,14 @@ abstract public class Block extends GameItem {
 
     public List<IBlockProperty> getBlockProperties() {
         return blockProperties;
+    }
+
+    public Chunk getChunk() {
+        return chunk;
+    }
+
+    public void setChunk(Chunk chunk) {
+        this.chunk = chunk;
     }
 
     public  <T extends IBlockProperty> boolean hasBlockProperty(Class<T> property)

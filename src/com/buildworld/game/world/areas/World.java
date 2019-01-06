@@ -1,7 +1,9 @@
 package com.buildworld.game.world.areas;
 
+import com.buildworld.engine.interfaces.IPersist;
 import com.buildworld.game.blocks.Block;
 import com.buildworld.game.events.IUpdateable;
+import com.buildworld.game.world.WorldState;
 import com.buildworld.game.world.utils.Directions;
 import com.buildworld.game.world.interfaces.IArea;
 import org.joml.Vector2f;
@@ -11,7 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class World implements IArea {
+public class World implements IArea, IPersist {
 
     public static final int worldHeight = 512;
 
@@ -29,6 +31,10 @@ public class World implements IArea {
     // This may need to be a 3D vector to represent 3D space in a galaxy
     private Vector2f location;
 
+    private WorldState worldState;
+
+    private int seed;
+
     // The galaxy this world belongs to.
     // The galaxy should represent a server
     private Galaxy galaxy;
@@ -38,14 +44,59 @@ public class World implements IArea {
         return location;
     }
 
-    public World(int size) throws Exception {
+    public World(int size, WorldState worldState) throws Exception {
         map = new HashMap<>(); // x, z, y
         this.size = size;
+        this.worldState = worldState;
     }
 
-    public World(Vector2f location, int size) throws Exception {
-        this(size);
+    public World(int size, WorldState worldState, Vector2f location) throws Exception {
+        this(size, worldState);
         this.location = location;
+    }
+
+    public WorldState getWorldState() {
+        return worldState;
+    }
+
+    public void setWorldState(WorldState worldState) {
+        this.worldState = worldState;
+    }
+
+    public Galaxy getGalaxy() {
+        return galaxy;
+    }
+
+    public void setGalaxy(Galaxy galaxy) {
+        this.galaxy = galaxy;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public HashMap<Integer, HashMap<Integer, Region>> getMap() {
+        return map;
+    }
+
+    public List<Block> getAdded() {
+        return added;
+    }
+
+    public List<Block> getRemoved() {
+        return removed;
+    }
+
+    public Vector2f getLocation() {
+        return location;
+    }
+
+    public int getSeed() {
+        return seed;
+    }
+
+    public void setSeed(int seed) {
+        this.seed = seed;
     }
 
     /**
@@ -143,7 +194,9 @@ public class World implements IArea {
     }
 
     public void setBlock(int x, int y, int z, Block block) throws Exception {
-        getContainingChunk(x, z).setBlock(x % Chunk.size, y, z % Chunk.size, block);
+        Chunk chunk = getContainingChunk(x, z);
+        block.setChunk(chunk);
+        chunk.setBlock(x % Chunk.size, y, z % Chunk.size, block);
         added.add(block);
     }
 
@@ -282,15 +335,37 @@ public class World implements IArea {
         return blockChunk;
     }
 
+    public int getBlockNeighborCount(Block block) throws Exception {
+        BlockChunk blockChunk = getBlockNeighbors(block);
+        int count = 0;
+        if(blockChunk.getNorth() != null)
+            count++;
+        if(blockChunk.getSouth() != null)
+            count++;
+        if(blockChunk.getEast() != null)
+            count++;
+        if(blockChunk.getWest() != null)
+            count++;
+        if(blockChunk.getUp() != null)
+            count++;
+        if(blockChunk.getDown() != null)
+            count++;
+        return count;
+    }
+
     public Block[] getRegion(int x, int y, int z, int radius) throws Exception {
         int diameter = radius * 2 + 1;
+        int start = radius * -1; // radius * -1
         List<Block> region = new ArrayList<>();
-        for (int i = radius * -1; i <= radius; i++) {
-            for (int j = radius * -1; j <= radius; j++) {
+        for (int i = start; i <= radius; i++) {
+            for (int j = start; j <= radius; j++) {
                 for (int k = 0; k < y; k++) {
-                    Block block = getBlock(x + i, k, z + j);
-                    if (block != null) {
-                        region.add(block);
+                    try {
+                        Block block = getBlock(x + i, k, z + j);
+                        if (block != null && getBlockNeighborCount(block) < 6) {
+                            region.add(block);
+                        }
+                    } catch(Exception e) {
                     }
                 }
             }
@@ -309,6 +384,7 @@ public class World implements IArea {
             for (int j = zs; j <= Math.max(z1, z2); j++) {
                 for (int k = ys; k <= Math.max(y1, y2); k++) {
                     Block block = getBlock(i, k, j);
+                    System.out.println(block.getName());
                     if (block != null) {
                         region.add(block);
                     }
@@ -479,5 +555,13 @@ public class World implements IArea {
         return region.toArray(new Block[0]);
     }
 
+    @Override
+    public void load() throws Exception {
+        // TODO: Load in the seed, and all the regions (but leave the regions unloaded)
+    }
 
+    @Override
+    public void unload() throws Exception {
+        // TODO
+    }
 }

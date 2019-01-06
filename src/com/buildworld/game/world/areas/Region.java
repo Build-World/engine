@@ -1,43 +1,56 @@
 package com.buildworld.game.world.areas;
 
+import com.buildworld.engine.interfaces.IPersist;
+import com.buildworld.game.world.RegionState;
 import com.buildworld.game.world.interfaces.IArea;
 import org.joml.Vector2f;
 
 import java.util.HashMap;
 
-public class Region implements IArea {
+public class Region implements IArea, IPersist {
 
     public static final int size = 9;
 
     private HashMap<Integer, HashMap<Integer, Chunk>> map;
 
+    private RegionState state;
+
     private Vector2f location;
     private World world;
+
+    public Region(RegionState state) {
+        map = new HashMap<>();
+        this.state = state;
+    }
+
+    public Region(RegionState state, Vector2f location) {
+        this(state);
+        this.location = location;
+    }
 
     public World getWorld() {
         return world;
     }
 
+    public void setWorld(World world) {
+        this.world = world;
+    }
+
     @Override
     public Vector2f getLocation2D() {
-        return null;
+        return location;
     }
 
     public void setLocation(Vector2f location) {
         this.location = location;
     }
 
-    public Region() {
-        map = new HashMap<>();
+    public RegionState getState() {
+        return state;
     }
 
-    public Region(Vector2f location) {
-        this();
-        this.location = location;
-    }
-
-    public void setWorld(World world) {
-        this.world = world;
+    public void setState(RegionState state) {
+        this.state = state;
     }
 
     public void setChunk(int x, int z, Chunk chunk) throws Exception
@@ -90,5 +103,23 @@ public class Region implements IArea {
         return isChunk((int)coordinate.x, (int)coordinate.y);
     }
 
+    public void load() throws Exception
+    {
+        if(map.size() > 0)
+            throw new Exception("Cannot load a region which already has loaded data");
+
+        // TODO: Load in region data from file
+
+        state = RegionState.LOADED;
+    }
+
+    public void unload() throws Exception
+    {
+        state = RegionState.UNLOADED;
+
+        // TODO: Save region to file
+
+        map.clear();
+    }
 
 }
