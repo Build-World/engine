@@ -31,11 +31,24 @@ public class Scene {
         }
     }
 
+    public void setGameItems(List<GameItem> gameItems) {
+        for (GameItem gameItem : gameItems) {
+            addGameItem(gameItem);
+        }
+    }
+
     public void removeGameItems(GameItem[] gameItems)
     {
         int numGameItems = gameItems != null ? gameItems.length : 0;
         for (int i=0; i<numGameItems; i++) {
             removeGameItem(gameItems[i]);
+        }
+    }
+
+    public void removeGameItems(List<GameItem> gameItems)
+    {
+        for (GameItem gameItem : gameItems) {
+            removeGameItem(gameItem);
         }
     }
 

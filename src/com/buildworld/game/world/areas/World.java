@@ -23,7 +23,6 @@ public class World implements IArea, IPersist {
 
     private HashMap<Integer, HashMap<Integer, Region>> map;
 
-    // TODO: These may no longer be required
     private List<Block> added = new ArrayList<>();
     private List<Block> removed = new ArrayList<>();
 
@@ -103,113 +102,226 @@ public class World implements IArea, IPersist {
      * Sets a region using x,z region offset coordinates.
      * Each coordinate does not correspond to a block, but rather a region.
      *
-     * @param x
-     * @param z
+     * @param regionX
+     * @param regionZ
      * @param region
      * @throws Exception
      */
-    public void setRegion(int x, int z, Region region) throws Exception {
-        if (x >= size || z >= size) {
+    public void setRegion(int regionX, int regionZ, Region region) throws Exception {
+        if (regionX >= size || regionZ >= size) {
             throw new Exception("Out of world bounds");
         }
 
         // Puts a block into the map but if the hashmaps dont exist it will create it
         region.setWorld(this);
-        region.setLocation(new Vector2f(x, z));
-        map.computeIfAbsent(x, k -> new HashMap<>()).put(z, region);
+        region.setLocation(new Vector2f(regionX, regionZ));
+        map.computeIfAbsent(regionX, k -> new HashMap<>()).put(regionZ, region);
     }
 
-    public void setRegion(Vector2f coordinate, Region region) throws Exception {
-        setRegion((int) coordinate.x, (int) coordinate.y, region);
+    /**
+     * Sets a region into the given region coordinates
+     * The coordinate is not a block coordinate, it is a region coordinate
+     * @param regionCoordinate
+     * @param region
+     * @throws Exception
+     */
+    public void setRegion(Vector2f regionCoordinate, Region region) throws Exception {
+        setRegion((int) regionCoordinate.x, (int) regionCoordinate.y, region);
     }
 
-    public Region getRegion(int x, int z) throws Exception {
-        if (x >= size || z >= size) {
+    /**
+     * Returns a region given the x,z region coordinates
+     * @param regionX
+     * @param regionZ
+     * @return
+     * @throws Exception
+     */
+    public Region getRegion(int regionX, int regionZ) throws Exception {
+        if (regionX >= size || regionZ >= size) {
             throw new Exception("Out of world bounds");
         }
 
         try {
-            return map.get(x).get(z);
+            return map.get(regionX).get(regionZ);
         } catch (Exception e) {
             return null;
         }
     }
 
-    public Region getRegion(Vector2f coordinate) throws Exception {
-        return getRegion((int) coordinate.x, (int) coordinate.y);
+    /**
+     * Returns a region given region coordinates
+     * @param regionCoordinate
+     * @return
+     * @throws Exception
+     */
+    public Region getRegion(Vector2f regionCoordinate) throws Exception {
+        return getRegion((int) regionCoordinate.x, (int) regionCoordinate.y);
     }
 
-    public boolean isRegion(int x, int z) throws Exception {
-        if (x >= size || z >= size) {
+    /**
+     * Returns whether or not a region exists at the given region coordinates
+     * @param regionX
+     * @param regionZ
+     * @return
+     * @throws Exception
+     */
+    public boolean isRegion(int regionX, int regionZ) throws Exception {
+        if (regionX >= size || regionZ >= size) {
             throw new Exception("Out of region bounds");
         }
 
-        return getRegion(x, z) == null;
+        return getRegion(regionX, regionZ) == null;
     }
 
-    public boolean isRegion(Vector2f coordinate) throws Exception {
-        return isRegion((int) coordinate.x, (int) coordinate.y);
+    /**
+     * Determines whether or not a region exists at a given region coordinates
+     * @param regionCoordinate
+     * @return
+     * @throws Exception
+     */
+    public boolean isRegion(Vector2f regionCoordinate) throws Exception {
+        return isRegion((int) regionCoordinate.x, (int) regionCoordinate.y);
     }
 
+    /**
+     * Gets the region which contains the given block
+     * @param block
+     * @return
+     * @throws Exception
+     */
     public Region getContainingRegion(Block block) throws Exception {
         return getContainingRegion((int) block.getPosition().x, (int) block.getPosition().z);
     }
 
-    public Region getContainingRegion(Vector2f coordinate) throws Exception {
-        return getContainingRegion((int) coordinate.x, (int) coordinate.y);
+    /**
+     * Returns the region which contains the given block coordinates
+     * @param blockCoordinate
+     * @return
+     * @throws Exception
+     */
+    public Region getContainingRegion(Vector2f blockCoordinate) throws Exception {
+        return getContainingRegion((int) blockCoordinate.x, (int) blockCoordinate.y);
     }
 
-    public Region getContainingRegion(int x, int z) throws Exception {
+    /**
+     * Returns the region which contains the given block coordinates
+     * @param blockX
+     * @param blockZ
+     * @return
+     * @throws Exception
+     */
+    public Region getContainingRegion(int blockX, int blockZ) throws Exception {
         int regionLength = Region.size * Chunk.size;
 
-        int regionX = x / regionLength;
-        int regionZ = z / regionLength;
+        int regionX = blockX / regionLength;
+        int regionZ = blockZ / regionLength;
 
         return getRegion(regionX, regionZ);
     }
 
+    /**
+     * Returns the chunk containing the given block
+     * @param block
+     * @return
+     * @throws Exception
+     */
     public Chunk getContainingChunk(Block block) throws Exception {
         return getContainingChunk((int) block.getPosition().x, (int) block.getPosition().z);
     }
 
-    public Chunk getContainingChunk(Vector2f coordinate) throws Exception {
-        return getContainingChunk((int) coordinate.x, (int) coordinate.y);
+    /**
+     * Returns the chunk containing the given block coordinates
+     * @param blockCoordinate
+     * @return
+     * @throws Exception
+     */
+    public Chunk getContainingChunk(Vector2f blockCoordinate) throws Exception {
+        return getContainingChunk((int) blockCoordinate.x, (int) blockCoordinate.y);
     }
 
-    public Chunk getContainingChunk(int x, int z) throws Exception {
+    /**
+     * Returns the chunk containing the given block coordinates
+     * @param blockX
+     * @param blockZ
+     * @return
+     * @throws Exception
+     */
+    public Chunk getContainingChunk(int blockX, int blockZ) throws Exception {
         int regionLength = Region.size * Chunk.size;
 
-        int chunkX = (x % regionLength) / Chunk.size;
-        int chunkZ = (z % regionLength) / Chunk.size;
+        int chunkX = (blockX % regionLength) / Chunk.size;
+        int chunkZ = (blockZ % regionLength) / Chunk.size;
 
-        return getContainingRegion(x, z).getChunk(chunkX, chunkZ);
+        return getContainingRegion(blockX, blockZ).getChunk(chunkX, chunkZ);
     }
 
-    public Block getBlock(int x, int y, int z) throws Exception {
-        return getContainingChunk(x, z).getBlock(x % Chunk.size, y, z % Chunk.size);
+    /**
+     * Returns the block at the given block coordinates
+     * @param blockX
+     * @param blockY
+     * @param blockZ
+     * @return
+     * @throws Exception
+     */
+    public Block getBlock(int blockX, int blockY, int blockZ) throws Exception {
+        return getContainingChunk(blockX, blockZ).getBlock(blockX % Chunk.size, blockY, blockZ % Chunk.size);
     }
 
-    public Block getBlock(Vector3f coordinate) throws Exception {
-        return getBlock((int) coordinate.x, (int) coordinate.y, (int) coordinate.z);
+    /**
+     * Returns the block at the given block coordinate
+     * @param blockCoordinate
+     * @return
+     * @throws Exception
+     */
+    public Block getBlock(Vector3f blockCoordinate) throws Exception {
+        return getBlock((int) blockCoordinate.x, (int) blockCoordinate.y, (int) blockCoordinate.z);
     }
 
-    public void setBlock(int x, int y, int z, Block block) throws Exception {
-        Chunk chunk = getContainingChunk(x, z);
+    /**
+     * Sets a block at the given block coordinate
+     * @param blockX
+     * @param blockY
+     * @param blockZ
+     * @param block
+     * @throws Exception
+     */
+    public void setBlock(int blockX, int blockY, int blockZ, Block block) throws Exception {
+        Chunk chunk = getContainingChunk(blockX, blockZ);
         block.setChunk(chunk);
-        chunk.setBlock(x % Chunk.size, y, z % Chunk.size, block);
+        chunk.setBlock(blockX % Chunk.size, blockY, blockZ % Chunk.size, block);
         added.add(block);
     }
 
-    public void setBlock(Vector3f coordinate, Block block) throws Exception {
-        setBlock((int) coordinate.x, (int) coordinate.y, (int) coordinate.z, block);
+    /**
+     * Sets a block at the given block coordinate
+     * @param blockCoordinate
+     * @param block
+     * @throws Exception
+     */
+    public void setBlock(Vector3f blockCoordinate, Block block) throws Exception {
+        setBlock((int) blockCoordinate.x, (int) blockCoordinate.y, (int) blockCoordinate.z, block);
     }
 
-    public boolean isAir(int x, int y, int z) throws Exception {
-        return getBlock(x, y, z) == null;
+    /**
+     * Returns whether a block exists at the given block coordinates. If not, it is air
+     * @param blockX
+     * @param blockY
+     * @param blockZ
+     * @return
+     * @throws Exception
+     */
+    public boolean isAir(int blockX, int blockY, int blockZ) throws Exception {
+        return getBlock(blockX, blockY, blockZ) == null;
     }
 
-    public boolean isAir(Vector3f coordinate) throws Exception {
-        return isAir((int) coordinate.x, (int) coordinate.y, (int) coordinate.z);
+    /**
+     * Returns whether a block exists at the given block coordinates. If not, it is air
+     * @param blockCoordinate
+     * @return
+     * @throws Exception
+     */
+    public boolean isAir(Vector3f blockCoordinate) throws Exception {
+        return isAir((int) blockCoordinate.x, (int) blockCoordinate.y, (int) blockCoordinate.z);
     }
 
     /**
@@ -227,24 +339,24 @@ public class World implements IArea, IPersist {
     /**
      * Get the neighboring block to the specified coordinate in the given direction
      *
-     * @param coordinate
+     * @param blockCoordinate
      * @param direction
      * @return
      * @throws Exception
      */
-    public Block getBlockNeighbor(Vector3f coordinate, Vector3f direction) throws Exception {
-        return getBlock(new Vector3f(coordinate).add(direction));
+    public Block getBlockNeighbor(Vector3f blockCoordinate, Vector3f direction) throws Exception {
+        return getBlock(new Vector3f(blockCoordinate).add(direction));
     }
 
     /**
      * Update the 6 neighboring blocks to a specific block coordinate.
      * This will not update the target coordinate
      *
-     * @param coordinate
+     * @param blockCoordinate
      * @throws Exception
      */
-    public void updateBlockNeighbors(Vector3f coordinate) throws Exception {
-        BlockChunk blockChunk = getBlockNeighbors(coordinate);
+    public void updateBlockNeighbors(Vector3f blockCoordinate) throws Exception {
+        BlockChunk blockChunk = getBlockNeighbors(blockCoordinate);
         if (blockChunk.getNorth() instanceof IUpdateable)
             ((IUpdateable) blockChunk.getNorth()).update(blockChunk.getTarget());
         if (blockChunk.getSouth() instanceof IUpdateable)
@@ -274,12 +386,12 @@ public class World implements IArea, IPersist {
      * Updates all of the neighbors to a specified coordinate, but does not update the specified coordinate or the
      * passed ignore block.
      *
-     * @param coordinate
+     * @param blockCoordinate
      * @param ignore
      * @throws Exception
      */
-    public void updateBlockNeighbors(Vector3f coordinate, Block ignore) throws Exception {
-        BlockChunk blockChunk = getBlockNeighbors(coordinate);
+    public void updateBlockNeighbors(Vector3f blockCoordinate, Block ignore) throws Exception {
+        BlockChunk blockChunk = getBlockNeighbors(blockCoordinate);
         if (ignore != blockChunk.getNorth() && blockChunk.getNorth() instanceof IUpdateable)
             ((IUpdateable) blockChunk.getNorth()).update(blockChunk.getTarget());
         if (ignore != blockChunk.getSouth() && blockChunk.getSouth() instanceof IUpdateable)
@@ -309,12 +421,12 @@ public class World implements IArea, IPersist {
     /**
      * Returns the 6 neighbors of a given coordinate including north, south, east, west, up and down
      *
-     * @param coordinate
+     * @param blockCoordinate
      * @return
      * @throws Exception
      */
-    public BlockChunk getBlockNeighbors(Vector3f coordinate) throws Exception {
-        return getBlockNeighbors(getBlock(coordinate));
+    public BlockChunk getBlockNeighbors(Vector3f blockCoordinate) throws Exception {
+        return getBlockNeighbors(getBlock(blockCoordinate));
     }
 
     /**
@@ -355,14 +467,14 @@ public class World implements IArea, IPersist {
 
     /**
      * Gets a cube region with a specified center point and extending in all directions by the radius amount
-     * @param x
-     * @param y
-     * @param z
+     * @param blockX
+     * @param blockY
+     * @param blockZ
      * @param radius
      * @return
      * @throws Exception
      */
-    public Block[] getRegion(int x, int y, int z, int radius) throws Exception {
+    public List<Block> getRegion(int blockX, int blockY, int blockZ, int radius) throws Exception {
         int diameter = radius * 2 + 1;
         int start = radius * -1; // radius * -1
         int yStart = (start < 0) ? 0 : start;
@@ -371,7 +483,7 @@ public class World implements IArea, IPersist {
             for (int j = start; j <= radius; j++) {
                 for (int k = yStart; k < radius; k++) {
                     try {
-                        Block block = getBlock(x + i, y + k, z + j);
+                        Block block = getBlock(blockX + i, blockY + k, blockZ + j);
                         if (block != null && getBlockNeighborCount(block) < 6) {
                             region.add(block);
                         }
@@ -380,30 +492,30 @@ public class World implements IArea, IPersist {
                 }
             }
         }
-        return region.toArray(new Block[0]);
+        return region;
     }
 
     /**
      * Returns a cube region of blocks bounded by the two diagonal points
-     * @param x1
-     * @param y1
-     * @param z1
-     * @param x2
-     * @param y2
-     * @param z2
+     * @param blockX1
+     * @param blockY1
+     * @param blockZ1
+     * @param blockX2
+     * @param blockY2
+     * @param blockZ2
      * @return
      * @throws Exception
      */
-    public Block[] getRegion(int x1, int y1, int z1, int x2, int y2, int z2) throws Exception {
+    public List<Block> getRegion(int blockX1, int blockY1, int blockZ1, int blockX2, int blockY2, int blockZ2) throws Exception {
         List<Block> region = new ArrayList<>();
 
-        int xs = Math.min(x1, x2);
-        int ys = Math.min(y1, y2);
-        int zs = Math.min(z1, z2);
+        int xs = Math.min(blockX1, blockX2);
+        int ys = Math.min(blockY1, blockY2);
+        int zs = Math.min(blockZ1, blockZ2);
 
-        for (int i = xs; i <= Math.max(x1, x2); i++) {
-            for (int j = zs; j <= Math.max(z1, z2); j++) {
-                for (int k = ys; k <= Math.max(y1, y2); k++) {
+        for (int i = xs; i <= Math.max(blockX1, blockX2); i++) {
+            for (int j = zs; j <= Math.max(blockZ1, blockZ2); j++) {
+                for (int k = ys; k <= Math.max(blockY1, blockY2); k++) {
                     try {
                         Block block = getBlock(i, k, j);
                         if (block != null && getBlockNeighborCount(block) < 6) {
@@ -415,7 +527,7 @@ public class World implements IArea, IPersist {
             }
         }
 
-        return region.toArray(new Block[0]);
+        return region;
     }
 
     /**
@@ -425,17 +537,17 @@ public class World implements IArea, IPersist {
      * [abs(x2-x1) >= (radius * 2 + 1), abs(z2-z1) >= (radius * 2 + 1)]
      * Algorithm only iterates for each extra consumed coordinate.
      *
-     * @param x1     x1
-     * @param z1     z1
-     * @param x2     x2
-     * @param z2     z2
+     * @param blockX1     x1
+     * @param blockZ1     z1
+     * @param blockX2     x2
+     * @param blockZ2     z2
      * @param radius The distance from the center of a region to one edge
      * @return List of Vector2f coordinate pairs. X->X, Y->Z
      */
-    public Vector2f[] getMovedRegionCoords(int x1, int z1, int x2, int z2, int radius) {
+    public List<Vector2f> getMovedRegionCoords(int blockX1, int blockZ1, int blockX2, int blockZ2, int radius) {
         // If there is no movement, return an empty array
-        if (x1 == x2 && z1 == z2)
-            return new Vector2f[0];
+        if (blockX1 == blockX2 && blockZ1 == blockZ2)
+            return new ArrayList<>();
 
         List<Vector2f> coords = new ArrayList<>();
 
@@ -454,8 +566,8 @@ public class World implements IArea, IPersist {
          * flip: The absolute values of the difference of (P2 - P1)
          * reverseFlip: Maps P4 from the top right quadrant to its expected quadrant
          */
-        Vector2f p1 = new Vector2f(x1, z1);
-        Vector2f p2 = new Vector2f(x2, z2);
+        Vector2f p1 = new Vector2f(blockX1, blockZ1);
+        Vector2f p2 = new Vector2f(blockX2, blockZ2);
 
         Vector2f flip = new Vector2f(p2).sub(p1);
 
@@ -509,7 +621,7 @@ public class World implements IArea, IPersist {
             }
         }
 
-        return coords.toArray(new Vector2f[0]);
+        return coords;
     }
 
     /**
@@ -519,19 +631,19 @@ public class World implements IArea, IPersist {
      * [abs(x2-x1) >= (radius * 2 + 1), abs(y2-y1) >= (radius * 2 + 1), abs(z2-z1) >= (radius * 2 + 1)]
      * Algorithm only iterates for each extra consumed coordinate.
      *
-     * @param x1
-     * @param y1
-     * @param z1
-     * @param x2
-     * @param y2
-     * @param z2
+     * @param blockX1
+     * @param blockY1
+     * @param blockZ1
+     * @param blockX2
+     * @param blockY2
+     * @param blockZ2
      * @param radius
      * @return
      */
-    public Vector3f[] getMovedRegionCoords(int x1, int y1, int z1, int x2, int y2, int z2, int radius) {
+    public List<Vector3f> getMovedRegionCoords(int blockX1, int blockY1, int blockZ1, int blockX2, int blockY2, int blockZ2, int radius) {
         // If there is no movement, return an empty array
-        if (x1 == x2 && y1 == y2 && z1 == z2)
-            return new Vector3f[0];
+        if (blockX1 == blockX2 && blockY1 == blockY2 && blockZ1 == blockZ2)
+            return new ArrayList<>();
 
         List<Vector3f> coords = new ArrayList<>();
 
@@ -550,8 +662,8 @@ public class World implements IArea, IPersist {
          * flip: The absolute values of the difference of (P2 - P1)
          * reverseFlip: Maps P4 from the top right quadrant to its expected quadrant
          */
-        Vector3f p1 = new Vector3f(x1, y1, z1);
-        Vector3f p2 = new Vector3f(x2, y2, z2);
+        Vector3f p1 = new Vector3f(blockX1, blockY1, blockZ1);
+        Vector3f p2 = new Vector3f(blockX2, blockY2, blockZ2);
 
         Vector3f flip = new Vector3f(p2).sub(p1);
 
@@ -646,32 +758,33 @@ public class World implements IArea, IPersist {
             }
         }
 
-        return coords.toArray(new Vector3f[0]);
+        return coords;
     }
 
     /**
      * Flips a set of coordinates around the point x1,z1
-     * @param coords
-     * @param x1
-     * @param z1
+     * @param blockCoordinates
+     * @param blockX1
+     * @param blockZ1
      * @param xFlip
      * @param zFlip
      * @return
      */
-    public Vector2f[] flipMovedRegionCoords(Vector2f[] coords, int x1, int z1, boolean xFlip, boolean zFlip) {
-        Vector2f[] flippedCoords = new Vector2f[coords.length];
+    public List<Vector2f> flipMovedRegionCoords(List<Vector2f> blockCoordinates, int blockX1, int blockZ1, boolean xFlip, boolean zFlip) {
+        List<Vector2f> flippedCoords = new ArrayList<>(blockCoordinates.size());
 
-        Vector2f p1 = new Vector2f(x1, z1);
+        Vector2f p1 = new Vector2f(blockX1, blockZ1);
 
-        for (int i = 0; i < coords.length; i++) {
+        for(Vector2f blockCoordinate : blockCoordinates)
+        {
             Vector2f reverseFlip = new Vector2f(0, 0);
 
             if (xFlip)
-                reverseFlip.x = (coords[i].x() - p1.x()) * 2;
+                reverseFlip.x = (blockCoordinate.x() - p1.x()) * 2;
             if (zFlip)
-                reverseFlip.y = (coords[i].y() - p1.y()) * 2;
+                reverseFlip.y = (blockCoordinate.y() - p1.y()) * 2;
 
-            flippedCoords[i] = new Vector2f(coords[i]).sub(reverseFlip);
+            flippedCoords.add(new Vector2f(blockCoordinate).sub(reverseFlip));
         }
 
         return flippedCoords;
@@ -679,31 +792,32 @@ public class World implements IArea, IPersist {
 
     /**
      * Flips a set of coordinates around the point x1,y1,z1
-     * @param coords
-     * @param x1
-     * @param y1
-     * @param z1
+     * @param blockCoordinates
+     * @param blockX1
+     * @param blockY1
+     * @param blockZ1
      * @param xFlip
      * @param yFlip
      * @param zFlip
      * @return
      */
-    public Vector3f[] flipMovedRegionCoords(Vector3f[] coords, int x1, int y1, int z1, boolean xFlip, boolean yFlip, boolean zFlip) {
-        Vector3f[] flippedCoords = new Vector3f[coords.length];
+    public List<Vector3f> flipMovedRegionCoords(List<Vector3f> blockCoordinates, int blockX1, int blockY1, int blockZ1, boolean xFlip, boolean yFlip, boolean zFlip) {
+        List<Vector3f> flippedCoords = new ArrayList<>(blockCoordinates.size());
 
-        Vector3f p1 = new Vector3f(x1, y1, z1);
+        Vector3f p1 = new Vector3f(blockX1, blockY1, blockZ1);
 
-        for (int i = 0; i < coords.length; i++) {
+        for(Vector3f blockCoordinate : blockCoordinates)
+        {
             Vector3f reverseFlip = new Vector3f(0, 0, 0);
 
             if (xFlip)
-                reverseFlip.x = (coords[i].x() - p1.x()) * 2;
+                reverseFlip.x = (blockCoordinate.x() - p1.x()) * 2;
             if(yFlip)
-                reverseFlip.y = (coords[i].y() - p1.y()) * 2;
+                reverseFlip.y = (blockCoordinate.y() - p1.y()) * 2;
             if (zFlip)
-                reverseFlip.z = (coords[i].z() - p1.z()) * 2;
+                reverseFlip.z = (blockCoordinate.z() - p1.z()) * 2;
 
-            flippedCoords[i] = new Vector3f(coords[i]).sub(reverseFlip);
+            flippedCoords.add(new Vector3f(blockCoordinate).sub(reverseFlip));
         }
 
         return flippedCoords;
@@ -711,15 +825,16 @@ public class World implements IArea, IPersist {
 
     /**
      * Translates a set of coords by a specified offset
-     * @param coords
-     * @param offset
+     * @param blockCoordinates
+     * @param blockOffset
      * @return
      */
-    public Vector2f[] translateRegionCoords(Vector2f[] coords, Vector2f offset) {
-        Vector2f[] translatedCoords = new Vector2f[coords.length];
+    public List<Vector2f> translateRegionCoords(List<Vector2f> blockCoordinates, Vector2f blockOffset) {
+        List<Vector2f> translatedCoords = new ArrayList<>(blockCoordinates.size());
 
-        for (int i = 0; i < coords.length; i++) {
-            translatedCoords[i] = new Vector2f(coords[i]).add(offset);
+        for(Vector2f blockCoordinate : blockCoordinates)
+        {
+            translatedCoords.add(new Vector2f(blockCoordinate).add(blockOffset));
         }
 
         return translatedCoords;
@@ -727,28 +842,47 @@ public class World implements IArea, IPersist {
 
     /**
      * Translates a set of coords by a specified offset
-     * @param coords
-     * @param offset
+     * @param blockCoordinates
+     * @param blockOffset
      * @return
      */
-    public Vector3f[] translateRegionCoords(Vector3f[] coords, Vector3f offset) {
-        Vector3f[] translatedCoords = new Vector3f[coords.length];
+    public List<Vector3f> translateRegionCoords(List<Vector3f> blockCoordinates, Vector3f blockOffset) {
+        List<Vector3f> translatedCoords = new ArrayList<>(blockCoordinates.size());
 
-        for (int i = 0; i < coords.length; i++) {
-            translatedCoords[i] = new Vector3f(coords[i]).add(offset);
+        for(Vector3f blockCoordinate : blockCoordinates)
+        {
+            translatedCoords.add(new Vector3f(blockCoordinate).add(blockOffset));
         }
 
         return translatedCoords;
     }
-    
-    public Block[] getMovedRegion(int x1, int y1, int z1, int x2, int y2, int z2, int radius) throws Exception {
-        return getMovedRegion(getMovedRegionCoords(x1, y1, z1, x2, y2, z2, radius));
+
+    /**
+     * Returns a list of blocks based on the moved regions denoted by the two center points
+     * @param blockX1
+     * @param blockY1
+     * @param blockZ1
+     * @param blockX2
+     * @param blockY2
+     * @param blockZ2
+     * @param radius
+     * @return
+     * @throws Exception
+     */
+    public List<Block> getMovedRegion(int blockX1, int blockY1, int blockZ1, int blockX2, int blockY2, int blockZ2, int radius) throws Exception {
+        return getMovedRegion(getMovedRegionCoords(blockX1, blockY1, blockZ1, blockX2, blockY2, blockZ2, radius));
     }
 
-    public Block[] getMovedRegion(Vector3f[] coords) throws Exception {
+    /**
+     * Takes a list of coords and turns it into a list of blocks
+     * @param blockCoordinates
+     * @return
+     * @throws Exception
+     */
+    public List<Block> getMovedRegion(List<Vector3f> blockCoordinates) throws Exception {
         List<Block> region = new ArrayList<>();
 
-        for (Vector3f coord : coords) {
+        for (Vector3f coord : blockCoordinates) {
             try {
                 Block block = getBlock((int) coord.x(), (int) coord.y(), (int) coord.z());
                 if (block != null && getBlockNeighborCount(block) < 6) {
@@ -758,7 +892,7 @@ public class World implements IArea, IPersist {
             }
         }
 
-        return region.toArray(new Block[0]);
+        return region;
     }
 
     /**
@@ -767,7 +901,7 @@ public class World implements IArea, IPersist {
      * @return
      * @throws Exception
      */
-    public Block[] removeHiddenBlocks(Block[] blocks) throws Exception
+    public List<Block> removeHiddenBlocks(List<Block> blocks) throws Exception
     {
         List<Block> region = new ArrayList<>();
         for(Block block : blocks)
@@ -776,31 +910,47 @@ public class World implements IArea, IPersist {
                 region.add(block);
             }
         }
-        return region.toArray(new Block[0]);
+        return region;
     }
 
-    public Block[] getUpdatedInRange(int x, int y, int z, int radius) {
+    /**
+     * Returns a list of new blocks that exist in a given range for a given center point and radius
+     * @param blockX
+     * @param blockY
+     * @param blockZ
+     * @param radius
+     * @return
+     */
+    public List<Block> getUpdatedInRange(int blockX, int blockY, int blockZ, int radius) {
         if (added.size() < 1)
-            return new Block[0];
+            return new ArrayList<>();
 
         List<Block> region = new ArrayList<>();
         for (Block block : added) {
             int gix = (int) block.getPosition().x;
             int giz = (int) block.getPosition().z;
             int giy = (int) block.getPosition().y;
-            if (gix >= (x - radius) && gix <= (x + radius) && giz >= (z - radius) && giz <= (z + radius) && giy >= (y - radius) && giy <= (y + radius)) {
+            if (gix >= (blockX - radius) && gix <= (blockX + radius) && giz >= (blockZ - radius) && giz <= (blockZ + radius) && giy >= (blockY - radius) && giy <= (blockY + radius)) {
                 region.add(block);
             }
         }
         this.added.clear();
-        return region.toArray(new Block[0]);
+        return region;
     }
 
+    /**
+     * Load a persisted world
+     * @throws Exception
+     */
     @Override
     public void load() throws Exception {
         // TODO: Load in the seed, and all the regions (but leave the regions unloaded)
     }
 
+    /**
+     * Persist this world
+     * @throws Exception
+     */
     @Override
     public void unload() throws Exception {
         // TODO
