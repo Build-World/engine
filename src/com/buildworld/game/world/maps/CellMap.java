@@ -7,10 +7,10 @@ package com.buildworld.game.world.maps;
  */
 abstract public class CellMap extends GenerationMap3D {
 
-    private float bornAliveChance = 0.56f;
+    private float bornAliveChance = 0.3f;
     private int deathLimit = 5;
     private int birthLimit = 5;
-    private int steps = 2;
+    private int steps = 3;
 
     public CellMap(int x, int z, int y) {
         super(x, z, y);
@@ -128,7 +128,7 @@ abstract public class CellMap extends GenerationMap3D {
                         }
                     } //Otherwise, if the cell is dead now, check if it has the right number of neighbours to be 'born'
                     else{
-                        if(nbs > birthLimit){
+                        if(nbs == birthLimit){
                             newMap[i][j][k] = 1;
                         }
                         else{

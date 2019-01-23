@@ -10,13 +10,14 @@ public class CaveMap extends CellMap {
 
     private SimplexNoise noise;
     private Vector2f blockOffset;
-    private int featureSize = 1;
+    private int featureSize = 3;
 
     public CaveMap(int x, int z, int y, int seed, Vector2f blockOffset) {
         super(x, z, y);
         this.blockOffset = blockOffset;
         noise = new SimplexNoise(seed);
-        noise.setFeatureSize(0.540540f);
+        //noise.setFeatureSize(0.540540f);
+        noise.setFeatureSize(0.75f);
     }
 
     @Override

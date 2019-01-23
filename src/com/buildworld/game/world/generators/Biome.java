@@ -139,9 +139,8 @@ abstract public class Biome implements IGenerate, IKeyNameDescibe {
         this.core = core;
     }
 
-    public Region generateRegion(FillHeightMap fillHeightMap) throws Exception
+    public Region generateRegion(FillHeightMap fillHeightMap, Region region) throws Exception
     {
-        Region region = new Region(RegionState.GENERATING);
         for(int i = 0; i < Region.size; i++)
         {
             for(int j = 0; j < Region.size; j++)
@@ -158,12 +157,15 @@ abstract public class Biome implements IGenerate, IKeyNameDescibe {
         chunk.setRegion(region);
         chunk.setLocation(chunkOffset);
 
+        int xOffset = (int)chunkOffset.x * Chunk.size;
+        int zOffset = (int)chunkOffset.y * Chunk.size;
+
         for (int i = 0; i < Chunk.size; i++) {
             for (int j = 0; j < Chunk.size; j++) {
                 int top;
                 for(int k = (World.worldHeight - 1); k >= 0; k--)
-                {
-                    if(heightMap.get(i,j,k) == 1) {
+                {                    
+                    if(heightMap.get(i + xOffset , j + zOffset,k) == 1) {
                         top = k;
                     } else {
                         continue;
@@ -175,7 +177,7 @@ abstract public class Biome implements IGenerate, IKeyNameDescibe {
                         throw new Exception("Thickness is too much for generated height. Cannot continue.");
 
                     for (int w = 0; w < getCoreThickness(); w++) {
-                        if(heightMap.get(i,j,w) == 0)
+                        if(heightMap.get(i + xOffset , j + zOffset,w) == 0)
                             continue;
                         chunk.setBlock(i, w, j, getCore().copy());
                     }
@@ -183,7 +185,7 @@ abstract public class Biome implements IGenerate, IKeyNameDescibe {
                     int thickness = getCoreThickness();
 
                     for (int w = thickness; w < (thickness + rockThickness); w++) {
-                        if(heightMap.get(i,j,w) == 0)
+                        if(heightMap.get(i + xOffset , j + zOffset,w) == 0)
                             continue;
                         chunk.setBlock(i, w, j, getRock().copy());
                     }
@@ -191,7 +193,7 @@ abstract public class Biome implements IGenerate, IKeyNameDescibe {
                     thickness += rockThickness;
 
                     for (int w = thickness; w < (thickness + getCrustThickness()); w++) {
-                        if(heightMap.get(i,j,w) == 0)
+                        if(heightMap.get(i + xOffset , j + zOffset,w) == 0)
                             continue;
                         chunk.setBlock(i, w, j, getCrust().copy());
                     }
@@ -199,7 +201,7 @@ abstract public class Biome implements IGenerate, IKeyNameDescibe {
                     thickness += getCrustThickness();
 
                     for (int w = thickness; w < (thickness + getSurfaceThickness()); w++) {
-                        if(heightMap.get(i,j,w) == 0)
+                        if(heightMap.get(i + xOffset , j + zOffset,w) == 0)
                             continue;
                         chunk.setBlock(i, w, j, getSurface().copy());
                     }
@@ -212,8 +214,8 @@ abstract public class Biome implements IGenerate, IKeyNameDescibe {
         return chunk;
     }
 
-    public Region generate(FillHeightMap fillHeightMap) throws Exception {
-        return generateRegion(fillHeightMap);
+    public Region generate(FillHeightMap fillHeightMap, Region region) throws Exception {
+        return generateRegion(fillHeightMap, region);
     }
 
     @Override

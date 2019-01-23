@@ -7,6 +7,7 @@ import com.buildworld.game.world.WorldState;
 import com.buildworld.game.world.utils.Directions;
 import com.buildworld.game.world.interfaces.IArea;
 import org.joml.Vector2f;
+import org.joml.Vector2i;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -156,6 +157,34 @@ public class World implements IArea, IPersist {
      */
     public Region getRegion(Vector2f regionCoordinate) throws Exception {
         return getRegion((int) regionCoordinate.x, (int) regionCoordinate.y);
+    }
+
+    /**
+     * Unloads a region from the world
+     * @param regionX
+     * @param regionZ
+     * @return
+     * @throws Exception
+     */
+    public void unloadRegion(int regionX, int regionZ) throws Exception {
+        if (regionX >= size || regionZ >= size) {
+            throw new Exception("Out of world bounds");
+        }
+
+        try {
+            map.get(regionX).remove(regionZ);
+        } catch (Exception e) {
+        }
+    }
+
+    /**
+     * Unloads a region from the world
+     * @param regionCoordinate
+     * @return
+     * @throws Exception
+     */
+    public void unloadRegion(Vector2f regionCoordinate) throws Exception {
+        unloadRegion((int) regionCoordinate.x, (int) regionCoordinate.y);
     }
 
     /**

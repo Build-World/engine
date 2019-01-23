@@ -9,6 +9,7 @@ import com.buildworld.game.blocks.types.IBlockType;
 import com.buildworld.game.world.areas.BlockChunk;
 import com.buildworld.game.world.areas.Chunk;
 import com.shawnclake.morgencore.core.component.services.Services;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ abstract public class Block extends GameItem {
     public Material material;
     public IBlockType type;
     private Chunk chunk;
+    private Vector3f chunkCoordinate;
     public List<IBlockProperty> blockProperties;
 
     public static Map<Material, Mesh> matMeshes = new HashMap<>();
@@ -62,6 +64,20 @@ abstract public class Block extends GameItem {
         this.material = material;
     }
 
+    public Vector3f getChunkCoordinate() {
+        return chunkCoordinate;
+    }
+
+    public void setChunkCoordinate(Vector3f chunkCoordinate) {
+        this.chunkCoordinate = chunkCoordinate;
+    }
+
+    public void setChunkCoordinate(int x, int y, int z) {
+        this.chunkCoordinate.x = x;
+        this.chunkCoordinate.y= y;
+        this.chunkCoordinate.z = z;
+    }
+
     private Block(String namespace, String name, Mesh mesh, IBlockType type, Chunk chunk) throws Exception {
         super();
         this.setMesh(mesh);
@@ -71,6 +87,7 @@ abstract public class Block extends GameItem {
         this.chunk = chunk;
         this.blockProperties = new ArrayList<>();
         this.setScale(0.5f);
+        this.chunkCoordinate = new Vector3f(0 ,0f ,0f);
 
         create();
         ready();

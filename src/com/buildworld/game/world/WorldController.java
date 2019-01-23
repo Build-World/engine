@@ -34,7 +34,8 @@ public class WorldController {
     protected Region generateRegion(Vector2f regionOffset) throws Exception
     {
         FillHeightMap fillHeightMap = planetGenerator.generateHeightMap(regionOffset);
-        Region region = biome.generate(fillHeightMap);
+        Region region = new Region(RegionState.GENERATING, regionOffset);
+        biome.generate(fillHeightMap, region);
         return region;
     }
 
@@ -46,8 +47,11 @@ public class WorldController {
             throw new Exception("Cannot unload a non existent region");
         } else if(region.getState().equals(RegionState.LOADED))
         {
+            region.setState(RegionState.UNLOADED);
             region.unload();
+            world.unloadRegion(regionOffset);
         }
+
     }
 
     public Region loadRegion(Vector2f regionOffset) throws Exception
@@ -59,7 +63,7 @@ public class WorldController {
             region = generateRegion(regionOffset);
             world.setRegion(regionOffset, region);
             region.setWorld(world);
-            region.setLocation(regionOffset);
+            //region.setLocation(regionOffset);
             region.setState(RegionState.LOADED);
         } else if (region.getState().equals(RegionState.UNLOADED))
         {
@@ -69,5 +73,9 @@ public class WorldController {
         }
 
         return region;
+    }
+
+    public boolean isRegionLoaded(Vector2f regionOffset) throws Exception {
+        return world.getRegion(regionOffset) == null;
     }
 }
