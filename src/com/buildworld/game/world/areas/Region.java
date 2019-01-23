@@ -15,8 +15,25 @@ public class Region implements IArea, IPersist {
 
     private RegionState state;
 
+    // Location is the region offset
     private Vector2f location;
+
     private World world;
+
+    public static int sGetRegionLengthInBlocks()
+    {
+        return size * Chunk.size;
+    }
+
+    public static Vector2f sGetBlockOffset(Vector2f regionOffset)
+    {
+        return new Vector2f(regionOffset).mul(Region.size).mul(Chunk.size);
+    }
+
+    public Vector2f getBlockOffset()
+    {
+        return new Vector2f(location).mul(Region.size).mul(Chunk.size);
+    }
 
     public Region(RegionState state) {
         map = new HashMap<>();

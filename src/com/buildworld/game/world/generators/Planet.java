@@ -211,6 +211,51 @@ abstract public class Planet implements IGenerate, IKeyNameDescibe {
     private int minimumSurfaceThickness = 0;
 
     /**
+     * Remaps coordinates to different areas of the noise map
+     * Values > 1 will essentially stretch the noise map and map multiple coordinates to the same areas of the noise map
+     * Values < 1 will produce unpredictable results as it will be skipping over parts of the noise map
+     * Overall, this value has a large effect on generation
+     * default: 1
+     */
+    private float caveStretchFactor = 1f;
+
+    /**
+     * Defines the resolution of the Cave Map Noise
+     * Smaller values will generate eratic caves  - less cavernous
+     * Larger values will generate smoother caves - much more cavernous
+     * Overall, this value has a large effect on generation
+     * default: 0.75
+     */
+    private float caveNoiseFeatureSize = 0.75f;
+
+    /**
+     * Defines how smooth the caves become
+     * The higher the number, the more smooth, cavernous, and less independent the caves become
+     * This number should likely be at least 2, but should never be 0.
+     * Overall, this value has a massive effect on generation
+     * ***Note*** This value has a substantial impact on generating performance and should be changed accordingly
+     * default: 2
+     */
+    private int caveSmoothnessFactor = 2;
+
+    /**
+     * Changes how many caves can spawn and how cavernous the caves become
+     * This value must be be between 0 and 1.
+     * A value of 1 will result in no caves, and the entire underground being one giant empty cave.
+     * A value of 0 will result in no caves, and the entire underground being solid blocks.
+     * Overall, this value has a substantial effect on generation
+     * default: 0.3
+     */
+    private float caveFrequencyFactor = 0.3f;
+
+    /**
+     * How thick should the bottom of the world be.
+     * If this value = 0, caves could extend into void
+     * If this value is > 0, that many layers of solid blocks will be created
+     */
+    private int coreThickness = 2;
+
+    /**
      * The seed provides repeatable generation
      */
     private int seed;
@@ -342,6 +387,46 @@ abstract public class Planet implements IGenerate, IKeyNameDescibe {
         this.minimumSurfaceThickness = minimumSurfaceThickness;
     }
 
+    public float getCaveStretchFactor() {
+        return caveStretchFactor;
+    }
+
+    public void setCaveStretchFactor(float caveStretchFactor) {
+        this.caveStretchFactor = caveStretchFactor;
+    }
+
+    public float getCaveNoiseFeatureSize() {
+        return caveNoiseFeatureSize;
+    }
+
+    public void setCaveNoiseFeatureSize(float caveNoiseFeatureSize) {
+        this.caveNoiseFeatureSize = caveNoiseFeatureSize;
+    }
+
+    public int getCaveSmoothnessFactor() {
+        return caveSmoothnessFactor;
+    }
+
+    public void setCaveSmoothnessFactor(int caveSmoothnessFactor) {
+        this.caveSmoothnessFactor = caveSmoothnessFactor;
+    }
+
+    public float getCaveFrequencyFactor() {
+        return caveFrequencyFactor;
+    }
+
+    public void setCaveFrequencyFactor(float caveFrequencyFactor) {
+        this.caveFrequencyFactor = caveFrequencyFactor;
+    }
+
+    public int getCoreThickness() {
+        return coreThickness;
+    }
+
+    public void setCoreThickness(int coreThickness) {
+        this.coreThickness = coreThickness;
+    }
+
     public int getSeed() {
         return seed;
     }
@@ -351,20 +436,25 @@ abstract public class Planet implements IGenerate, IKeyNameDescibe {
     }
 
     public FillHeightMap generateHeightMap(Vector2f regionOffset) throws Exception {
-        long start = System.nanoTime();
-        Vector2f blockPos = new Vector2f(regionOffset).mul(Region.size).mul(Chunk.size);
+        Vector2f blockPos = Region.sGetBlockOffset(regionOffset);
         int regionLength = Region.size * Chunk.size;
 
+        // 3D Maps
         FillHeightMap fillHeightMap = new FillHeightMap(regionLength, regionLength, World.worldHeight);
 
+        // 2D Maps
         HeightMap heightMap = new HeightMap(regionLength, regionLength);
         FeatureMap featureMap = new FeatureMap(regionLength, regionLength);
         FrequencyMap frequencyMap = new FrequencyMap(regionLength, regionLength);
 
         // the +4's are due to the 2 long boundares along all edges of the generated cell map
         CaveMap caveMap = new CaveMap(regionLength + 4, regionLength + 4, World.worldHeight + 4, seed, blockPos);
+        caveMap.setStretchFactor(caveStretchFactor);
+        caveMap.setNoiseFeatureSize(caveNoiseFeatureSize);
+        caveMap.setBornAliveChance(caveFrequencyFactor);
+        caveMap.setSteps(caveSmoothnessFactor);
 
-        SimplexNoise frequencyNoise = new SimplexNoise(seed);
+        SimplexNoise frequencyNoise = new SimplexNoise(seed, blockPos);
         frequencyNoise.setFeatureSize(frequencyNoiseFeatureSize);
         frequencyNoise.setSpreadFactor(frequencyNoiseSpreadFactor);
         frequencyMap.setNoise(frequencyNoise);
@@ -372,38 +462,64 @@ abstract public class Planet implements IGenerate, IKeyNameDescibe {
 
         caveMap.generate();
 
-        SimplexNoise heightNoise = new SimplexNoise(seed);
+        SimplexNoise heightNoise = new SimplexNoise(seed, blockPos);
         heightNoise.setFeatureSize(heightNoiseFeatureSize);
         heightNoise.setSpreadFactor(heightNoiseSpreadFactor);
         heightMap.setNoise(heightNoise);
         heightMap.initializeWithNoise();
 
-        SimplexNoise featureNoise = new SimplexNoise(seed);
+        SimplexNoise featureNoise = new SimplexNoise(seed, blockPos);
         featureNoise.setSpreadFactor(featureNoiseSpreadFactor);
-
-        long check1 = System.nanoTime();
 
         for (int i = 0; i < regionLength; i++) {
             for (int j = 0; j < regionLength; j++) {
                 featureNoise.setFeatureSize(((frequencyMap.get(i, j) + landToOceanRatio) * featureNoiseFeatureSizeScale) + featureNoiseFeatureSizeModifier);
+
                 featureMap.set(i, j, featureNoise.gen(i, j));
+
                 float input = heightMap.get(i, j) + 1;
-                int output = (int) ((Math.pow((input + magnitudeFactor), stretchFactor)) * heightFactor * featureMap.get(i, j)) + seaLevel;
-                if (output > (seaLevel * 2 - 1)) {
+
+                int maxHeight = (int) ((Math.pow((input + magnitudeFactor), stretchFactor)) * heightFactor * featureMap.get(i, j)) + seaLevel;
+
+                if (maxHeight > (seaLevel * 2 - 1)) {
                     throw new Exception("2*sealevel is not a sufficient optimization");
                 }
-                for (int k = 0; k < output; k++) {
-                    int isBlock = (int) caveMap.get(i + 2, j + 2, k);
-                    // k -> 1, output -> 3, min -> 2    3-1 == 1
-                    if ((output - k) <= minimumSurfaceThickness) {
+
+                // maxHeight is the max height of each x,z coordiante, and the cave map determines which blocks are filled
+                //   within that x,z column.
+
+                for (int k = 0; k < maxHeight; k++) {
+                    int isBlock = (int) caveMap.get(i + 2, j + 2, k + 2);
+                    // k -> 1, maxHeight -> 3, min -> 2    3-1 == 1
+
+                    // Ensures the right amount of blocks for the surface exist
+                    if ((maxHeight - k) <= minimumSurfaceThickness) {
                         fillHeightMap.set(i, j, k, 1);
-                    } else if (k < (output - cavePertrusionThickness)) {
-                        fillHeightMap.set(i, j, k, isBlock);
+
+                    // The usual case which will trigger for the majority of blocks outside of the surface thickness
+                    //   and cave pertrusions
+                    } else if (k < (maxHeight - cavePertrusionThickness)) {
+                        // Adds the "core" layer of blocks so that there is not necessarily holes into the void
+                        if(k < coreThickness)
+                        {
+                            fillHeightMap.set(i, j, k, 1);
+
+                        // If we are not down to the core layers, then determine whether or not a block should exist
+                        } else {
+                            fillHeightMap.set(i, j, k, isBlock);
+                        }
+
+                    // Handles the cases of cave pertrusion
                     } else {
+                        // If below sea level, no caves should ever pertrude through the ocean floor
                         if (k < seaLevel) {
                             fillHeightMap.set(i, j, k, 1);
+
+                        // Determine whether this cave should pertrude or not
                         } else if (Math.abs(featureMap.get(i, j)) < cavePertrusionThreshhold) {
                             fillHeightMap.set(i, j, k, 0);
+
+                        // If cave shouldn't pertrude, then set a block
                         } else {
                             fillHeightMap.set(i, j, k, 1);
                         }
@@ -411,12 +527,6 @@ abstract public class Planet implements IGenerate, IKeyNameDescibe {
                 }
             }
         }
-
-        long check2 = System.nanoTime();
-
-//        System.out.println("cave/height/freq: " + (TimeUnit.NANOSECONDS.toMillis(check1 - start)) + "ms");
-//        System.out.println("feature/fill: " + (TimeUnit.NANOSECONDS.toMillis(check2 - check1)) + "ms");
-//        System.out.println("total: " + (TimeUnit.NANOSECONDS.toMillis(check2 - start)) + "ms");
 
         return fillHeightMap;
     }

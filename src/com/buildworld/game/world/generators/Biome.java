@@ -174,7 +174,10 @@ abstract public class Biome implements IGenerate, IKeyNameDescibe {
                     int rockThickness = top + 1 - getCoreThickness() - getCrustThickness() - getSurfaceThickness();
 
                     if (rockThickness < 0)
+                    {
+                        System.out.println("The top is at: " + top);
                         throw new Exception("Thickness is too much for generated height. Cannot continue.");
+                    }
 
                     for (int w = 0; w < getCoreThickness(); w++) {
                         if(heightMap.get(i + xOffset , j + zOffset,w) == 0)

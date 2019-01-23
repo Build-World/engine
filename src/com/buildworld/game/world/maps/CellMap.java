@@ -10,7 +10,7 @@ abstract public class CellMap extends GenerationMap3D {
     private float bornAliveChance = 0.3f;
     private int deathLimit = 5;
     private int birthLimit = 5;
-    private int steps = 3;
+    private int steps = 2;
 
     public CellMap(int x, int z, int y) {
         super(x, z, y);
