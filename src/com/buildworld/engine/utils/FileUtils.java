@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Scanner;
 import com.shawnclake.morgencore.core.component.filesystem.FileRead;
+import com.shawnclake.morgencore.core.component.filesystem.Files;
 
 public class FileUtils {
 
@@ -26,6 +27,11 @@ public class FileUtils {
         return new FileRead(fileName).getEntireFile();
     }
 
+    public static int[] listIntToArray(List<Integer> list) {
+        int[] result = list.stream().mapToInt((Integer v) -> v).toArray();
+        return result;
+    }
+
     public static float[] listToArray(List<Float> list) {
         int size = list != null ? list.size() : 0;
         float[] floatArr = new float[size];
@@ -33,5 +39,10 @@ public class FileUtils {
             floatArr[i] = list.get(i);
         }
         return floatArr;
+    }
+
+    public static boolean existsResourceFile(String fileName) {
+        Files files = new Files();
+        return files.isFile(fileName);
     }
 }

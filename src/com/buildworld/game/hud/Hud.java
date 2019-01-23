@@ -6,11 +6,9 @@ import com.buildworld.engine.graphics.Window;
 import com.buildworld.engine.graphics.game.GameItem;
 import com.buildworld.engine.graphics.materials.Material;
 import com.buildworld.engine.graphics.mesh.Mesh;
-import com.buildworld.engine.graphics.mesh.OBJLoader;
 import com.buildworld.engine.graphics.mesh.meshes.CompassMesh;
 import com.buildworld.engine.graphics.text.TextItem;
 import com.buildworld.engine.graphics.textures.FontTexture;
-import com.buildworld.engine.graphics.textures.Texture;
 import org.joml.Vector4f;
 
 public class Hud implements IHud {
@@ -23,33 +21,17 @@ public class Hud implements IHud {
 
     private final TextItem statusTextItem;
 
-    private final GameItem compassItem;
-
     public Hud(String statusText) throws Exception {
         FontTexture fontTexture = new FontTexture(FONT, CHARSET);
         this.statusTextItem = new TextItem(statusText, fontTexture);
-        this.statusTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(1, 1, 1, 1));
-
-        // Create compass
-
-        Material material = new Material();
-        material.setAmbientColour(new Vector4f(1, 0, 0, 1));
-        Mesh mesh = new CompassMesh().make(material);
-        compassItem = new GameItem(mesh);
-        compassItem.setScale(40.0f);
-        // Rotate to transform it to screen coordinates
-        compassItem.setRotation(0f, 0f, 180f);
+        this.statusTextItem.getMesh().getMaterial().setAmbientColour(new Vector4f(0.5f, 0.5f, 0.5f, 10f));
 
         // Create list that holds the items that compose the HUD
-        gameItems = new GameItem[]{statusTextItem, compassItem};
+        gameItems = new GameItem[]{statusTextItem};
     }
 
     public void setStatusText(String statusText) {
         this.statusTextItem.setText(statusText);
-    }
-    
-    public void rotateCompass(float angle) {
-        this.compassItem.setRotation(0, 0, 180 + angle);
     }
 
     @Override
@@ -59,6 +41,5 @@ public class Hud implements IHud {
    
     public void updateSize(Window window) {
         this.statusTextItem.setPosition(10f, window.getHeight() - 50f, 0);
-        this.compassItem.setPosition(window.getWidth() - 40f, 50f, 0);
     }
 }

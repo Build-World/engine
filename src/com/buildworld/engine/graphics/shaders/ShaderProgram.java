@@ -8,6 +8,7 @@ import com.buildworld.engine.graphics.lights.DirectionalLight;
 import com.buildworld.engine.graphics.lights.PointLight;
 import com.buildworld.engine.graphics.lights.SpotLight;
 import com.buildworld.engine.graphics.materials.Material;
+import com.buildworld.engine.graphics.weather.Fog;
 import org.joml.Matrix4f;
 import static org.lwjgl.opengl.GL20.*;
 
@@ -22,6 +23,8 @@ public class ShaderProgram {
     private int vertexShaderId;
 
     private int fragmentShaderId;
+
+    private int geometryShaderId;
 
     private final Map<String, Integer> uniforms;
 
@@ -79,7 +82,14 @@ public class ShaderProgram {
         createUniform(uniformName + ".diffuse");
         createUniform(uniformName + ".specular");
         createUniform(uniformName + ".hasTexture");
+        createUniform(uniformName + ".hasNormalMap");
         createUniform(uniformName + ".reflectance");
+    }
+
+    public void createFogUniform(String uniformName) throws Exception {
+        createUniform(uniformName + ".activeFog");
+        createUniform(uniformName + ".colour");
+        createUniform(uniformName + ".density");
     }
 
     public void setUniform(String uniformName, Matrix4f value) {
@@ -87,6 +97,17 @@ public class ShaderProgram {
             // Dump the matrix into a float buffer
             FloatBuffer fb = stack.mallocFloat(16);
             value.get(fb);
+            glUniformMatrix4fv(uniforms.get(uniformName), false, fb);
+        }
+    }
+
+    public void setUniform(String uniformName, Matrix4f[] matrices) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            int length = matrices != null ? matrices.length : 0;
+            FloatBuffer fb = stack.mallocFloat(16 * length);
+            for (int i = 0; i < length; i++) {
+                matrices[i].get(16 * i, fb);
+            }
             glUniformMatrix4fv(uniforms.get(uniformName), false, fb);
         }
     }
@@ -156,7 +177,14 @@ public class ShaderProgram {
         setUniform(uniformName + ".diffuse", material.getDiffuseColour());
         setUniform(uniformName + ".specular", material.getSpecularColour());
         setUniform(uniformName + ".hasTexture", material.isTextured() ? 1 : 0);
+        setUniform(uniformName + ".hasNormalMap", material.hasNormalMap() ? 1 : 0);
         setUniform(uniformName + ".reflectance", material.getReflectance());
+    }
+
+    public void setUniform(String uniformName, Fog fog) {
+        setUniform(uniformName + ".activeFog", fog.isActive() ? 1 : 0);
+        setUniform(uniformName + ".colour", fog.getColour());
+        setUniform(uniformName + ".density", fog.getDensity());
     }
 
     public void createVertexShader(String shaderCode) throws Exception {
@@ -194,6 +222,9 @@ public class ShaderProgram {
         if (vertexShaderId != 0) {
             glDetachShader(programId, vertexShaderId);
         }
+        if (geometryShaderId != 0) {
+            glDetachShader(programId, geometryShaderId);
+        }
         if (fragmentShaderId != 0) {
             glDetachShader(programId, fragmentShaderId);
         }
@@ -202,6 +233,7 @@ public class ShaderProgram {
         if (glGetProgrami(programId, GL_VALIDATE_STATUS) == 0) {
             System.err.println("Warning validating Shader code: " + glGetProgramInfoLog(programId, 1024));
         }
+
     }
 
     public void bind() {

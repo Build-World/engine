@@ -1,8 +1,10 @@
-package com.buildworld.engine.graphics.mesh;
+package com.buildworld.engine.graphics.loaders;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.buildworld.engine.graphics.mesh.InstancedMesh;
+import com.buildworld.engine.graphics.mesh.Mesh;
 import com.buildworld.engine.utils.FileUtils;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -10,6 +12,10 @@ import org.joml.Vector3f;
 public class OBJLoader {
 
     public static Mesh loadMesh(String fileName) throws Exception {
+        return loadMesh(fileName, 1);
+    }
+
+    public static Mesh loadMesh(String fileName, int instances) throws Exception {
         List<String> lines = FileUtils.readAllLines(fileName);
         
         List<Vector3f> vertices = new ArrayList<>();
@@ -52,11 +58,11 @@ public class OBJLoader {
                     break;
             }
         }
-        return reorderLists(vertices, textures, normals, faces);
+        return reorderLists(vertices, textures, normals, faces, instances);
     }
 
     private static Mesh reorderLists(List<Vector3f> posList, List<Vector2f> textCoordList,
-            List<Vector3f> normList, List<Face> facesList) {
+            List<Vector3f> normList, List<Face> facesList, int instances) {
 
         List<Integer> indices = new ArrayList();
         // Create position array in the order it has been declared
@@ -78,9 +84,13 @@ public class OBJLoader {
                         indices, textCoordArr, normArr);
             }
         }
-        int[] indicesArr = new int[indices.size()];
-        indicesArr = indices.stream().mapToInt((Integer v) -> v).toArray();
-        Mesh mesh = new Mesh(posArr, textCoordArr, normArr, indicesArr);
+        int[] indicesArr = FileUtils.listIntToArray(indices);
+        Mesh mesh;
+        if (instances > 1) {
+            mesh = new InstancedMesh(posArr, textCoordArr, normArr, indicesArr, instances);
+        } else {
+            mesh = new Mesh(posArr, textCoordArr, normArr, indicesArr);
+        }
         return mesh;
     }
 

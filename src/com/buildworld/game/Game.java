@@ -17,6 +17,11 @@ public class Game {
     public static final int TARGET_FPS = 160;
     public static final int TARGET_TICKS = 40;
     public static final String name = "Build World";
+    public static final String path = "D:\\Programming\\Projects\\Build-World";
+
+    private double lastFps;
+
+    private int fps;
 
     private boolean running = true;
 
@@ -40,10 +45,15 @@ public class Game {
 
     public Game() {
         boolean vSync = false;
-        window = new Window(name, 640, 480, vSync);
+        Window.WindowOptions opts = new Window.WindowOptions();
+
+        opts.cullFace = true;
+        opts.showFps = true;
+
+        window = new Window(name, 640, 480, vSync, opts);
         gameTime = new GameTime(TARGET_TICKS, TARGET_FPS);
         mouseInput = new MouseInput();
-        modLoader = new ModLoader("C:\\Users\\using\\Desktop\\shawn\\build-world\\mods");
+        modLoader = new ModLoader(path + "\\mods");
     }
 
     public void dispose() {
@@ -105,7 +115,7 @@ public class Game {
 
         while(this.gameTime.isTick())
         {
-            this.tick();
+            this.tick(this.gameTime.getDelta());
             this.gameTime.postTick();
         }
 
