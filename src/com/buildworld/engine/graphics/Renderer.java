@@ -20,6 +20,7 @@ import com.buildworld.engine.graphics.shadow.ShadowCascade;
 import com.buildworld.engine.graphics.shadow.ShadowRenderer;
 import com.buildworld.engine.graphics.textures.Texture;
 import com.buildworld.engine.utils.FileUtils;
+import com.buildworld.game.Game;
 import org.joml.Matrix4f;
 import static org.lwjgl.opengl.GL11.*;
 import com.buildworld.engine.graphics.game.GameItem;
@@ -88,7 +89,7 @@ public class Renderer {
         setupFogShader();
 
         bufferPassModelMatrix =  new Matrix4f();
-        bufferPassMesh = StaticMeshesLoader.load("/models/buffer_pass_mess.obj", "/models")[0];
+        bufferPassMesh = StaticMeshesLoader.load(Game.path + "/engine/resources/models/buffer_pass_mess.obj", "/models")[0];
     }
 
     public void render(Window window, Camera camera, Scene scene, boolean sceneChanged) {
@@ -205,7 +206,7 @@ public class Renderer {
 
     private void setupPointLightShader() throws Exception {
         pointLightShaderProgram = new ShaderProgram();
-        pointLightShaderProgram.createVertexShader(FileUtils.loadResource("\\engine\\resourcesshaders/light_vertex.vs"));
+        pointLightShaderProgram.createVertexShader(FileUtils.loadResource("\\engine\\resources/shaders/light_vertex.vs"));
         pointLightShaderProgram.createFragmentShader(FileUtils.loadResource("\\engine\\resources/shaders/point_light_fragment.fs"));
         pointLightShaderProgram.link();
 

@@ -65,8 +65,8 @@ public class ShadowRenderer {
 
     private void setupDepthShader() throws Exception {
         depthShaderProgram = new ShaderProgram();
-        depthShaderProgram.createVertexShader(FileUtils.loadResource("/shaders/depth_vertex.vs"));
-        depthShaderProgram.createFragmentShader(FileUtils.loadResource("/shaders/depth_fragment.fs"));
+        depthShaderProgram.createVertexShader(FileUtils.loadResource("/engine/resources/shaders/depth_vertex.vs"));
+        depthShaderProgram.createFragmentShader(FileUtils.loadResource("/engine/resources/shaders/depth_fragment.fs"));
         depthShaderProgram.link();
 
         depthShaderProgram.createUniform("isInstanced");
