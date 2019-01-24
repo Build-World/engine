@@ -19,8 +19,12 @@ public class Material extends com.buildworld.engine.graphics.materials.Material 
         super(texture, reflectance);
     }
 
-    public Material(Vector4f ambientColour, Vector4f diffuseColour, Vector4f specularColour, Texture texture, float reflectance) {
-        super(ambientColour, diffuseColour, specularColour, texture, reflectance);
+    public Material(Vector4f diffuseColour, Vector4f specularColour, float reflectance) {
+        super(diffuseColour, specularColour, reflectance);
+    }
+
+    public Material(Vector4f diffuseColour, Vector4f specularColour, Texture texture, float reflectance) {
+        super(diffuseColour, specularColour, texture, reflectance);
     }
 
     public static Material make(Texture texture)
