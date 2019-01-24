@@ -1,5 +1,6 @@
 package com.buildworld.engine.utils.noise;
 
+import com.shawnclake.morgencore.core.component.Numbers;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
@@ -18,6 +19,9 @@ public class SimplexNoise implements INoise {
     private FastNoise fastNoise;
     private float spreadFactor = 1f;
     private Vector4f offset;
+
+    private float scaleNoiseMin = 0;
+    private float scaleNoiseMax = 0;
 
     public SimplexNoise() {
         offset = new Vector4f(0f,0f,0f,0f);
@@ -100,6 +104,28 @@ public class SimplexNoise implements INoise {
         return fastNoise.GetSeed();
     }
 
+    public float getScaleNoiseMin() {
+        return scaleNoiseMin;
+    }
+
+    public void setScaleNoiseMin(float scaleNoiseMin) {
+        this.scaleNoiseMin = scaleNoiseMin;
+    }
+
+    public float getScaleNoiseMax() {
+        return scaleNoiseMax;
+    }
+
+    public void setScaleNoiseMax(float scaleNoiseMax) {
+        this.scaleNoiseMax = scaleNoiseMax;
+    }
+
+    public void setScaling(float min, float max)
+    {
+        setScaleNoiseMin(min);
+        setScaleNoiseMax(max);
+    }
+
     /**
      * For size < 1, feature sizes become shrinked. ie. size = 0.5 will have feature sizes half as big
      * For size > 1, feature sizes become enlarged. ie. size = 2 will have feature sizes twice as big
@@ -110,19 +136,35 @@ public class SimplexNoise implements INoise {
         fastNoise.SetFrequency(1f / (size * 50f));
     }
 
+    private float scaleNoise(float gen)
+    {
+        float scaled = gen;
+        if(scaleNoiseMax != scaleNoiseMin)
+        {
+            scaled = (float)Numbers.scale(gen, -1, 1, scaleNoiseMin, scaleNoiseMax);
+        }
+        return scaled;
+    }
+
     @Override
     public float gen(float x, float y) {
-        return fastNoise.GetNoise((x+offset.x)/spreadFactor,(y+offset.y)/spreadFactor);
+        float gen = fastNoise.GetNoise((x+offset.x)/spreadFactor,(y+offset.y)/spreadFactor);
+        gen = scaleNoise(gen);
+        return gen;
     }
 
     @Override
     public float gen(float x, float y, float z) {
-        return fastNoise.GetNoise((x+offset.x)/spreadFactor,(y+offset.y)/spreadFactor,(z+offset.z)/spreadFactor);
+        float gen = fastNoise.GetNoise((x+offset.x)/spreadFactor,(y+offset.y)/spreadFactor,(z+offset.z)/spreadFactor);
+        gen = scaleNoise(gen);
+        return gen;
     }
 
     @Override
     public float gen(float x, float y, float z, float w) {
-        return fastNoise.GetSimplex((x+offset.x)/spreadFactor,(y+offset.y)/spreadFactor,(z+offset.z)/spreadFactor,(w+offset.w)/spreadFactor);
+        float gen = fastNoise.GetSimplex((x+offset.x)/spreadFactor,(y+offset.y)/spreadFactor,(z+offset.z)/spreadFactor,(w+offset.w)/spreadFactor);
+        gen = scaleNoise(gen);
+        return gen;
     }
 
 }

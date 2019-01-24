@@ -3,6 +3,10 @@ package com.buildworld.game.world.areas;
 import com.buildworld.engine.interfaces.IPersist;
 import com.buildworld.game.world.RegionState;
 import com.buildworld.game.world.interfaces.IArea;
+import com.buildworld.game.world.maps.types.AirQualityMap;
+import com.buildworld.game.world.maps.types.FertilityMap;
+import com.buildworld.game.world.maps.types.PercipitationMap;
+import com.buildworld.game.world.maps.types.TemperatureMap;
 import org.joml.Vector2f;
 
 import java.util.HashMap;
@@ -19,6 +23,11 @@ public class Region implements IArea, IPersist {
     private Vector2f location;
 
     private World world;
+
+    private TemperatureMap temperatureMap;
+    private PercipitationMap percipitationMap;
+    private FertilityMap fertilityMap;
+    private AirQualityMap airQualityMap;
 
     public static int sGetRegionLengthInBlocks()
     {
@@ -58,7 +67,7 @@ public class Region implements IArea, IPersist {
         return location;
     }
 
-    public void setLocation(Vector2f location) {
+    public void setLocation2D(Vector2f location) {
         this.location = location;
     }
 
@@ -70,6 +79,38 @@ public class Region implements IArea, IPersist {
         this.state = state;
     }
 
+    public TemperatureMap getTemperatureMap() {
+        return temperatureMap;
+    }
+
+    public void setTemperatureMap(TemperatureMap temperatureMap) {
+        this.temperatureMap = temperatureMap;
+    }
+
+    public PercipitationMap getPercipitationMap() {
+        return percipitationMap;
+    }
+
+    public void setPercipitationMap(PercipitationMap percipitationMap) {
+        this.percipitationMap = percipitationMap;
+    }
+
+    public FertilityMap getFertilityMap() {
+        return fertilityMap;
+    }
+
+    public void setFertilityMap(FertilityMap fertilityMap) {
+        this.fertilityMap = fertilityMap;
+    }
+
+    public AirQualityMap getAirQualityMap() {
+        return airQualityMap;
+    }
+
+    public void setAirQualityMap(AirQualityMap airQualityMap) {
+        this.airQualityMap = airQualityMap;
+    }
+
     public void setChunk(int x, int z, Chunk chunk) throws Exception
     {
         if(x < 0 || x >= size || z < 0 || z >= size)
@@ -79,7 +120,7 @@ public class Region implements IArea, IPersist {
 
         // Puts a block into the map but if the hashmaps dont exist it will create it
         chunk.setRegion(this);
-        chunk.setLocation(new Vector2f(x,z));
+        chunk.setLocation2D(new Vector2f(x,z));
         map.computeIfAbsent(x, k -> new HashMap<>()).put(z, chunk);
     }
 

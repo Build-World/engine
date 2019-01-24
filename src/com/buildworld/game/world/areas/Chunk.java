@@ -1,6 +1,7 @@
 package com.buildworld.game.world.areas;
 
 import com.buildworld.game.blocks.Block;
+import com.buildworld.game.world.generators.Biome;
 import com.buildworld.game.world.maps.types.HeightMap;
 import com.buildworld.game.world.interfaces.IArea;
 import org.joml.Vector2f;
@@ -20,20 +21,32 @@ public class Chunk implements IArea {
 
     private HashMap<Integer, HashMap<Integer, RenderChunk>> renderChunks;
 
+    private Biome biome;
+
     private HeightMap heightMap;
 
     private Vector2f location;
 
     private Region region;
 
-    public static Vector2f sGetBlockOffset(Vector2f regionOffset, Vector2f chunkOffset)
+    public static Vector2f sGetAbsBlockOffset(Vector2f regionOffset, Vector2f chunkOffset)
     {
         return new Vector2f(regionOffset).mul(Region.size).mul(Chunk.size).add(new Vector2f(chunkOffset).mul(Chunk.size));
     }
 
-    public Vector2f getBlockOffset()
+    public Vector2f getAbsBlockOffset()
     {
-        return sGetBlockOffset(this.getRegion().getLocation2D(), this.getLocation2D());
+        return sGetAbsBlockOffset(this.getRegion().getLocation2D(), this.getLocation2D());
+    }
+
+    public static Vector2f sGetRelativeBlockOffset(Vector2f chunkOffset)
+    {
+        return new Vector2f(chunkOffset).mul(Chunk.size);
+    }
+
+    public Vector2f getRelativeBlockOffset()
+    {
+        return sGetRelativeBlockOffset(this.getLocation2D());
     }
 
     public Region getRegion() {
@@ -45,7 +58,7 @@ public class Chunk implements IArea {
         return location;
     }
 
-    public void setLocation(Vector2f location) {
+    public void setLocation2D(Vector2f location) {
         this.location = location;
     }
 
@@ -76,6 +89,14 @@ public class Chunk implements IArea {
 
     public void setRegion(Region region) {
         this.region = region;
+    }
+
+    public Biome getBiome() {
+        return biome;
+    }
+
+    public void setBiome(Biome biome) {
+        this.biome = biome;
     }
 
     public void build() throws Exception
@@ -113,7 +134,7 @@ public class Chunk implements IArea {
 
     public void alertRenderChunk(int x, int z)
     {
-        getRenderChunkContainingBlock(x,z).setRequiresRebuild(true);
+        //getRenderChunkContainingBlock(x,z).setRequiresRebuild(true);
     }
 
     public void alertRenderChunk(Block block)
@@ -132,7 +153,7 @@ public class Chunk implements IArea {
         block.setChunkCoordinate(x,y,z);
 
         // Sets the absolute position of this block for rendering purposes
-        Vector2f offset = getBlockOffset();
+        Vector2f offset = getAbsBlockOffset();
         block.setPosition(offset.x+x,y,offset.y+z);
 
         block.setChunk(this);

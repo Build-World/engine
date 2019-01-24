@@ -7,7 +7,6 @@ import com.buildworld.game.world.WorldState;
 import com.buildworld.game.world.utils.Directions;
 import com.buildworld.game.world.interfaces.IArea;
 import org.joml.Vector2f;
-import org.joml.Vector2i;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -50,9 +49,9 @@ public class World implements IArea, IPersist {
         this.worldState = worldState;
     }
 
-    public World(int size, WorldState worldState, Vector2f location) throws Exception {
+    public World(int size, WorldState worldState, Vector2f location2D) throws Exception {
         this(size, worldState);
-        this.location = location;
+        this.location = location2D;
     }
 
     public WorldState getWorldState() {
@@ -115,7 +114,7 @@ public class World implements IArea, IPersist {
 
         // Puts a block into the map but if the hashmaps dont exist it will create it
         region.setWorld(this);
-        region.setLocation(new Vector2f(regionX, regionZ));
+        region.setLocation2D(new Vector2f(regionX, regionZ));
         map.computeIfAbsent(regionX, k -> new HashMap<>()).put(regionZ, region);
     }
 
@@ -353,6 +352,40 @@ public class World implements IArea, IPersist {
         return isAir((int) blockCoordinate.x, (int) blockCoordinate.y, (int) blockCoordinate.z);
     }
 
+    public Chunk getChunkNeighbor(Chunk chunk, Vector2f direction) throws Exception
+    {
+        Vector2f blockOffset = new Vector2f(chunk.getAbsBlockOffset());
+        blockOffset.add(new Vector2f(direction).mul(Chunk.size));
+        try {
+            return getContainingChunk(blockOffset);
+        } catch(Exception e)
+        {
+            return null;
+        }
+    }
+
+    public ChunkNeighbors getChunkNeighbors(Chunk chunk) throws Exception
+    {
+        Chunk north = getChunkNeighbor(chunk, Directions.NORTH2D);
+        Chunk south = getChunkNeighbor(chunk, Directions.SOUTH2D);
+        Chunk east = getChunkNeighbor(chunk, Directions.EAST2D);
+        Chunk west = getChunkNeighbor(chunk, Directions.WEST2D);
+        return new ChunkNeighbors(chunk, north, south, east, west);
+    }
+
+    public ChunkGrid getChunkGrid(Chunk chunk) throws Exception
+    {
+        Chunk north = getChunkNeighbor(chunk, Directions.NORTH2D);
+        Chunk south = getChunkNeighbor(chunk, Directions.SOUTH2D);
+        Chunk east = getChunkNeighbor(chunk, Directions.EAST2D);
+        Chunk west = getChunkNeighbor(chunk, Directions.WEST2D);
+        Chunk northEast = getChunkNeighbor(chunk, new Vector2f(Directions.NORTH2D).add(Directions.EAST2D));
+        Chunk northWest = getChunkNeighbor(chunk, new Vector2f(Directions.NORTH2D).add(Directions.WEST2D));
+        Chunk southEast = getChunkNeighbor(chunk, new Vector2f(Directions.SOUTH2D).add(Directions.EAST2D));
+        Chunk southWest = getChunkNeighbor(chunk, new Vector2f(Directions.SOUTH2D).add(Directions.WEST2D));
+        return new ChunkGrid(chunk, north, south, east, west, northEast, northWest, southEast, southWest);
+    }
+
     /**
      * Get the neighboring block to the specified block in the given direction
      *
@@ -385,7 +418,7 @@ public class World implements IArea, IPersist {
      * @throws Exception
      */
     public void updateBlockNeighbors(Vector3f blockCoordinate) throws Exception {
-        BlockChunk blockChunk = getBlockNeighbors(blockCoordinate);
+        BlockNeighbors blockChunk = getBlockNeighbors(blockCoordinate);
         if (blockChunk.getNorth() instanceof IUpdateable)
             ((IUpdateable) blockChunk.getNorth()).update(blockChunk.getTarget());
         if (blockChunk.getSouth() instanceof IUpdateable)
@@ -420,7 +453,7 @@ public class World implements IArea, IPersist {
      * @throws Exception
      */
     public void updateBlockNeighbors(Vector3f blockCoordinate, Block ignore) throws Exception {
-        BlockChunk blockChunk = getBlockNeighbors(blockCoordinate);
+        BlockNeighbors blockChunk = getBlockNeighbors(blockCoordinate);
         if (ignore != blockChunk.getNorth() && blockChunk.getNorth() instanceof IUpdateable)
             ((IUpdateable) blockChunk.getNorth()).update(blockChunk.getTarget());
         if (ignore != blockChunk.getSouth() && blockChunk.getSouth() instanceof IUpdateable)
@@ -454,7 +487,7 @@ public class World implements IArea, IPersist {
      * @return
      * @throws Exception
      */
-    public BlockChunk getBlockNeighbors(Vector3f blockCoordinate) throws Exception {
+    public BlockNeighbors getBlockNeighbors(Vector3f blockCoordinate) throws Exception {
         return getBlockNeighbors(getBlock(blockCoordinate));
     }
 
@@ -465,8 +498,8 @@ public class World implements IArea, IPersist {
      * @return
      * @throws Exception
      */
-    public BlockChunk getBlockNeighbors(Block block) throws Exception {
-        BlockChunk blockChunk = new BlockChunk(block);
+    public BlockNeighbors getBlockNeighbors(Block block) throws Exception {
+        BlockNeighbors blockChunk = new BlockNeighbors(block);
         blockChunk.setNorth(getBlockNeighbor(block, Directions.NORTH));
         blockChunk.setSouth(getBlockNeighbor(block, Directions.SOUTH));
         blockChunk.setEast(getBlockNeighbor(block, Directions.EAST));
@@ -477,7 +510,7 @@ public class World implements IArea, IPersist {
     }
 
     public int getBlockNeighborCount(Block block) throws Exception {
-        BlockChunk blockChunk = getBlockNeighbors(block);
+        BlockNeighbors blockChunk = getBlockNeighbors(block);
         int count = 0;
         if(blockChunk.getNorth() != null)
             count++;

@@ -5,7 +5,7 @@ import com.buildworld.game.world.interfaces.IArea;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-public class BlockChunk implements IArea {
+public class BlockNeighbors implements IArea {
 
     private Block target;
     private Block north;
@@ -15,7 +15,7 @@ public class BlockChunk implements IArea {
     private Block up;
     private Block down;
 
-    public BlockChunk(Block target, Block north, Block south, Block east, Block west, Block up, Block down) {
+    public BlockNeighbors(Block target, Block north, Block south, Block east, Block west, Block up, Block down) {
         this.target = target;
         this.north = north;
         this.south = south;
@@ -25,7 +25,7 @@ public class BlockChunk implements IArea {
         this.down = down;
     }
 
-    public BlockChunk(Block target) {
+    public BlockNeighbors(Block target) {
         this.target = target;
     }
 

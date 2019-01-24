@@ -6,7 +6,7 @@ import com.buildworld.engine.graphics.mesh.meshes.CubeMesh;
 import com.buildworld.game.blocks.properties.BlockPropertyService;
 import com.buildworld.game.blocks.properties.IBlockProperty;
 import com.buildworld.game.blocks.types.IBlockType;
-import com.buildworld.game.world.areas.BlockChunk;
+import com.buildworld.game.world.areas.BlockNeighbors;
 import com.buildworld.game.world.areas.Chunk;
 import com.shawnclake.morgencore.core.component.services.Services;
 import org.joml.Vector3f;
@@ -170,7 +170,7 @@ abstract public class Block extends GameItem {
         chunk.getRegion().getWorld().updateBlockNeighbors(getPosition(), ignore);
     }
 
-    public BlockChunk getNeighbors() throws Exception {
+    public BlockNeighbors getNeighbors() throws Exception {
         return chunk.getRegion().getWorld().getBlockNeighbors(getPosition());
     }
 

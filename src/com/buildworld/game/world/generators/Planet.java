@@ -256,6 +256,154 @@ abstract public class Planet implements IGenerate, IKeyNameDescibe {
     private int coreThickness = 2;
 
     /**
+     * Dictates the rate at which temperatureNoise changes sizes
+     * Smaller values will generate more eratic temperature changes
+     * Larger values will generate smoother temperature changes
+     * Sort of defines the resolution of the generated noise
+     * Overall, this value has a moderate effect on biomes
+     * default: 8
+     */
+    private float temperatureNoiseFeatureSize = 32f;
+
+    /**
+     * Defines how spread out the temperatureNoise shall be
+     * Essentially stretches the generated noise without modifying the resolution of the generated noise
+     * Smaller values will generate eratic temperature changes
+     * Larger values will generate smoother temperature changes
+     * Overall, this value has a moderate effect on biomes
+     * <p>
+     * Values smaller than 1 are not recommended
+     * <p>
+     * default: 1
+     */
+    private float temperatureNoiseSpreadFactor = 1f;
+
+    /**
+     * Dictates the rate at which percipitationNoise changes sizes
+     * Smaller values will generate more eratic percipitation changes
+     * Larger values will generate smoother percipitation changes
+     * Sort of defines the resolution of the generated noise
+     * Overall, this value has a moderate effect on biomes
+     * default: 8
+     */
+    private float percipitationNoiseFeatureSize = 32f;
+
+    /**
+     * Defines how spread out the percipitationNoise shall be
+     * Essentially stretches the generated noise without modifying the resolution of the generated noise
+     * Smaller values will generate eratic percipitation changes
+     * Larger values will generate smoother percipitation changes
+     * Overall, this value has a moderate effect on biomes
+     * <p>
+     * Values smaller than 1 are not recommended
+     * <p>
+     * default: 1
+     */
+    private float percipitationNoiseSpreadFactor = 1f;
+
+    /**
+     * Dictates the rate at which fertilityNoise changes sizes
+     * Smaller values will generate more eratic fertility changes
+     * Larger values will generate smoother fertility changes
+     * Sort of defines the resolution of the generated noise
+     * Overall, this value has a small effect on biomes
+     * default: 8
+     */
+    private float fertilityNoiseFeatureSize = 32f;
+
+    /**
+     * Defines how spread out the fertilityNoise shall be
+     * Essentially stretches the generated noise without modifying the resolution of the generated noise
+     * Smaller values will generate eratic fertility changes
+     * Larger values will generate smoother fertility changes
+     * Overall, this value has a moderate effect on biomes
+     * <p>
+     * Values smaller than 1 are not recommended
+     * <p>
+     * default: 1
+     */
+    private float fertilityNoiseSpreadFactor = 1f;
+
+    /**
+     * Dictates the rate at which airQualityNoise changes sizes
+     * Smaller values will generate more eratic airQuality changes
+     * Larger values will generate smoother airQuality changes
+     * Sort of defines the resolution of the generated noise
+     * Overall, this value has a little effect on biomes
+     * default: 8
+     */
+    private float airQualityNoiseFeatureSize = 32f;
+
+    /**
+     * Defines how spread out the airQualityNoise shall be
+     * Essentially stretches the generated noise without modifying the resolution of the generated noise
+     * Smaller values will generate eratic airQuality changes
+     * Larger values will generate smoother airQuality changes
+     * Overall, this value has a moderate effect on biomes
+     * <p>
+     * Values smaller than 1 are not recommended
+     * <p>
+     * default: 1
+     */
+    private float airQualityNoiseSpreadFactor = 1f;
+
+    /**
+     * Modifies the seed so that the temperature/percipitation/fertility/airquality/etc. maps are not all the same
+     * A value of 1, will not modify the seed
+     * A value smaller than one will increase the seed
+     * A value larger than one will decrease the seed
+     * Uses a relationship like: seed / modifier
+     * It is not recommended to make this value too large
+     * default: 1.5
+     */
+    private float temperatureSeedModifier = 1.5f;
+
+    /**
+     * Modifies the seed so that the temperature/percipitation/fertility/airquality/etc. maps are not all the same
+     * A value of 1, will not modify the seed
+     * A value smaller than one will increase the seed
+     * A value larger than one will decrease the seed
+     * Uses a relationship like: seed / modifier
+     * It is not recommended to make this value too large
+     * default: 3
+     */
+    private float percipitationSeedModifier = 3f;
+
+    /**
+     * Modifies the seed so that the temperature/percipitation/fertility/airquality/etc. maps are not all the same
+     * A value of 1, will not modify the seed
+     * A value smaller than one will increase the seed
+     * A value larger than one will decrease the seed
+     * Uses a relationship like: seed / modifier
+     * It is not recommended to make this value too large
+     * default: 4.5
+     */
+    private float fertilitySeedModifier = 4.5f;
+
+    /**
+     * Modifies the seed so that the temperature/percipitation/fertility/airquality/etc. maps are not all the same
+     * A value of 1, will not modify the seed
+     * A value smaller than one will increase the seed
+     * A value larger than one will decrease the seed
+     * Uses a relationship like: seed / modifier
+     * It is not recommended to make this value too large
+     * default: 5
+     */
+    private float airQualitySeedModifier = 5f;
+
+    /**
+     * The minimum possible temperature per block for generation
+     * default: -81
+     */
+    private float minTemperature = -81f;
+
+    /**
+     * The maximum possible temperature per block for generation
+     * default: 60
+     */
+    private float maxTemperature = 60f;
+
+    /**
      * The seed provides repeatable generation
      */
     private int seed;
@@ -427,6 +575,118 @@ abstract public class Planet implements IGenerate, IKeyNameDescibe {
         this.coreThickness = coreThickness;
     }
 
+    public float getTemperatureNoiseFeatureSize() {
+        return temperatureNoiseFeatureSize;
+    }
+
+    public void setTemperatureNoiseFeatureSize(float temperatureNoiseFeatureSize) {
+        this.temperatureNoiseFeatureSize = temperatureNoiseFeatureSize;
+    }
+
+    public float getTemperatureNoiseSpreadFactor() {
+        return temperatureNoiseSpreadFactor;
+    }
+
+    public void setTemperatureNoiseSpreadFactor(float temperatureNoiseSpreadFactor) {
+        this.temperatureNoiseSpreadFactor = temperatureNoiseSpreadFactor;
+    }
+
+    public float getPercipitationNoiseFeatureSize() {
+        return percipitationNoiseFeatureSize;
+    }
+
+    public void setPercipitationNoiseFeatureSize(float percipitationNoiseFeatureSize) {
+        this.percipitationNoiseFeatureSize = percipitationNoiseFeatureSize;
+    }
+
+    public float getPercipitationNoiseSpreadFactor() {
+        return percipitationNoiseSpreadFactor;
+    }
+
+    public void setPercipitationNoiseSpreadFactor(float percipitationNoiseSpreadFactor) {
+        this.percipitationNoiseSpreadFactor = percipitationNoiseSpreadFactor;
+    }
+
+    public float getFertilityNoiseFeatureSize() {
+        return fertilityNoiseFeatureSize;
+    }
+
+    public void setFertilityNoiseFeatureSize(float fertilityNoiseFeatureSize) {
+        this.fertilityNoiseFeatureSize = fertilityNoiseFeatureSize;
+    }
+
+    public float getFertilityNoiseSpreadFactor() {
+        return fertilityNoiseSpreadFactor;
+    }
+
+    public void setFertilityNoiseSpreadFactor(float fertilityNoiseSpreadFactor) {
+        this.fertilityNoiseSpreadFactor = fertilityNoiseSpreadFactor;
+    }
+
+    public float getAirQualityNoiseFeatureSize() {
+        return airQualityNoiseFeatureSize;
+    }
+
+    public void setAirQualityNoiseFeatureSize(float airQualityNoiseFeatureSize) {
+        this.airQualityNoiseFeatureSize = airQualityNoiseFeatureSize;
+    }
+
+    public float getAirQualityNoiseSpreadFactor() {
+        return airQualityNoiseSpreadFactor;
+    }
+
+    public void setAirQualityNoiseSpreadFactor(float airQualityNoiseSpreadFactor) {
+        this.airQualityNoiseSpreadFactor = airQualityNoiseSpreadFactor;
+    }
+
+    public float getTemperatureSeedModifier() {
+        return temperatureSeedModifier;
+    }
+
+    public void setTemperatureSeedModifier(float temperatureSeedModifier) {
+        this.temperatureSeedModifier = temperatureSeedModifier;
+    }
+
+    public float getPercipitationSeedModifier() {
+        return percipitationSeedModifier;
+    }
+
+    public void setPercipitationSeedModifier(float percipitationSeedModifier) {
+        this.percipitationSeedModifier = percipitationSeedModifier;
+    }
+
+    public float getFertilitySeedModifier() {
+        return fertilitySeedModifier;
+    }
+
+    public void setFertilitySeedModifier(float fertilitySeedModifier) {
+        this.fertilitySeedModifier = fertilitySeedModifier;
+    }
+
+    public float getAirQualitySeedModifier() {
+        return airQualitySeedModifier;
+    }
+
+    public void setAirQualitySeedModifier(float airQualitySeedModifier) {
+        this.airQualitySeedModifier = airQualitySeedModifier;
+    }
+
+    public float getMinTemperature() {
+        return minTemperature;
+    }
+
+    public void setMinTemperature(float minTemperature) {
+        this.minTemperature = minTemperature;
+    }
+
+    public float getMaxTemperature() {
+        return maxTemperature;
+    }
+
+    public void setMaxTemperature(float maxTemperature) {
+        this.maxTemperature = maxTemperature;
+    }
+
     public int getSeed() {
         return seed;
     }
@@ -435,6 +695,14 @@ abstract public class Planet implements IGenerate, IKeyNameDescibe {
         this.seed = seed;
     }
 
+    /**
+     * Generates a 3D height map where each x,y,z coordinate will either be a 0 or 1.
+     * 1 means there is a block at that location
+     * 0 means there is air at that location
+     * @param regionOffset
+     * @return
+     * @throws Exception
+     */
     public FillHeightMap generateHeightMap(Vector2f regionOffset) throws Exception {
         Vector2f blockPos = Region.sGetBlockOffset(regionOffset);
         int regionLength = Region.size * Chunk.size;
@@ -529,6 +797,86 @@ abstract public class Planet implements IGenerate, IKeyNameDescibe {
         }
 
         return fillHeightMap;
+    }
+
+    /**
+     * Generates a temperature map
+     * @param regionOffset
+     * @return
+     * @throws Exception
+     */
+    public TemperatureMap generateTemperatureMap(Vector2f regionOffset) throws Exception {
+        Vector2f blockPos = Region.sGetBlockOffset(regionOffset);
+        int regionLength = Region.size * Chunk.size;
+        TemperatureMap temperatureMap = new TemperatureMap(regionLength, regionLength);
+
+        SimplexNoise noise = new SimplexNoise((int)(seed / temperatureSeedModifier), blockPos);
+        noise.setScaling(minTemperature, maxTemperature);
+        noise.setFeatureSize(temperatureNoiseFeatureSize);
+        noise.setSpreadFactor(temperatureNoiseSpreadFactor);
+        temperatureMap.setNoise(noise);
+        temperatureMap.initializeWithNoise();
+        return temperatureMap;
+    }
+
+    /**
+     *
+     * @param regionOffset
+     * @return
+     * @throws Exception
+     */
+    public PercipitationMap generatePercipitationMap(Vector2f regionOffset) throws Exception {
+        Vector2f blockPos = Region.sGetBlockOffset(regionOffset);
+        int regionLength = Region.size * Chunk.size;
+        PercipitationMap percipitationMap = new PercipitationMap(regionLength, regionLength);
+
+        SimplexNoise noise = new SimplexNoise((int)(seed / percipitationSeedModifier), blockPos);
+        noise.setScaling(0, 1);
+        noise.setFeatureSize(percipitationNoiseFeatureSize);
+        noise.setSpreadFactor(percipitationNoiseSpreadFactor);
+        percipitationMap.setNoise(noise);
+        percipitationMap.initializeWithNoise();
+        return percipitationMap;
+    }
+
+    /**
+     *
+     * @param regionOffset
+     * @return
+     * @throws Exception
+     */
+    public FertilityMap generateFertilityMap(Vector2f regionOffset) throws Exception {
+        Vector2f blockPos = Region.sGetBlockOffset(regionOffset);
+        int regionLength = Region.size * Chunk.size;
+        FertilityMap fertilityMap = new FertilityMap(regionLength, regionLength);
+
+        SimplexNoise noise = new SimplexNoise((int)(seed / fertilitySeedModifier), blockPos);
+        noise.setScaling(0, 1);
+        noise.setFeatureSize(fertilityNoiseFeatureSize);
+        noise.setSpreadFactor(fertilityNoiseSpreadFactor);
+        fertilityMap.setNoise(noise);
+        fertilityMap.initializeWithNoise();
+        return fertilityMap;
+    }
+
+    /**
+     *
+     * @param regionOffset
+     * @return
+     * @throws Exception
+     */
+    public AirQualityMap generateAirQualityMap(Vector2f regionOffset) throws Exception {
+        Vector2f blockPos = Region.sGetBlockOffset(regionOffset);
+        int regionLength = Region.size * Chunk.size;
+        AirQualityMap airQualityMap = new AirQualityMap(regionLength, regionLength);
+
+        SimplexNoise noise = new SimplexNoise((int)(seed / airQualitySeedModifier), blockPos);
+        noise.setScaling(-1, 20);
+        noise.setFeatureSize(airQualityNoiseFeatureSize);
+        noise.setSpreadFactor(airQualityNoiseSpreadFactor);
+        airQualityMap.setNoise(noise);
+        airQualityMap.initializeWithNoise();
+        return airQualityMap;
     }
 
     public HeightMap smoothing(HeightMap heightMap) {
