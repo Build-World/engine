@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.buildworld.engine.graphics.animations.AnimGameItem;
-import com.buildworld.engine.graphics.animations.AnimVertex;
 import com.buildworld.engine.graphics.animations.AnimatedFrame;
 import com.buildworld.engine.graphics.materials.Material;
 import com.buildworld.engine.graphics.mesh.Mesh;

@@ -6,6 +6,8 @@ import com.buildworld.engine.graphics.mesh.Mesh;
 
 public class GameItem {
 
+    private boolean selected;
+
     private Mesh[] meshes;
 
     private final Vector3f position;
@@ -16,11 +18,18 @@ public class GameItem {
 
     private int textPos;
 
+    private boolean disableFrustumCulling;
+
+    private boolean insideFrustum;
+
     public GameItem() {
+        selected = false;
         position = new Vector3f(0, 0, 0);
         scale = 1;
         rotation = new Quaternionf();
         textPos = 0;
+        insideFrustum = true;
+        disableFrustumCulling = false;
     }
 
     public GameItem(Mesh mesh) {
@@ -39,6 +48,10 @@ public class GameItem {
 
     public int getTextPos() {
         return textPos;
+    }
+
+    public boolean isSelected() {
+        return selected;
     }
 
     public final void setPosition(float x, float y, float z) {
@@ -81,12 +94,32 @@ public class GameItem {
 
     public void cleanup() {
         int numMeshes = this.meshes != null ? this.meshes.length : 0;
-        for(int i=0; i<numMeshes; i++) {
+        for (int i = 0; i < numMeshes; i++) {
             this.meshes[i].cleanUp();
         }
     }
 
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
     public void setTextPos(int textPos) {
         this.textPos = textPos;
+    }
+
+    public boolean isInsideFrustum() {
+        return insideFrustum;
+    }
+
+    public void setInsideFrustum(boolean insideFrustum) {
+        this.insideFrustum = insideFrustum;
+    }
+
+    public boolean isDisableFrustumCulling() {
+        return disableFrustumCulling;
+    }
+
+    public void setDisableFrustumCulling(boolean disableFrustumCulling) {
+        this.disableFrustumCulling = disableFrustumCulling;
     }
 }

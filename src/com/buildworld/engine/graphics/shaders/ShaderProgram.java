@@ -12,6 +12,7 @@ import com.buildworld.engine.graphics.weather.Fog;
 import org.joml.Matrix4f;
 import static org.lwjgl.opengl.GL20.*;
 
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.system.MemoryStack;
@@ -42,6 +43,12 @@ public class ShaderProgram {
             throw new Exception("Could not find uniform:" + uniformName);
         }
         uniforms.put(uniformName, uniformLocation);
+    }
+
+    public void createUniform(String uniformName, int size) throws Exception {
+        for (int i=0; i<size; i++) {
+            createUniform(uniformName + "[" + i + "]");
+        }
     }
 
     public void createPointLightListUniform(String uniformName, int size) throws Exception {
@@ -78,7 +85,6 @@ public class ShaderProgram {
     }
 
     public void createMaterialUniform(String uniformName) throws Exception {
-        createUniform(uniformName + ".ambient");
         createUniform(uniformName + ".diffuse");
         createUniform(uniformName + ".specular");
         createUniform(uniformName + ".hasTexture");
@@ -101,6 +107,10 @@ public class ShaderProgram {
         }
     }
 
+    public void setUniform(String uniformName, Matrix4f value, int index) {
+        setUniform(uniformName + "[" + index  + "]", value);
+    }
+
     public void setUniform(String uniformName, Matrix4f[] matrices) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             int length = matrices != null ? matrices.length : 0;
@@ -118,6 +128,18 @@ public class ShaderProgram {
 
     public void setUniform(String uniformName, float value) {
         glUniform1f(uniforms.get(uniformName), value);
+    }
+
+    public void setUniform(String uniformName, float value, int index) {
+        setUniform(uniformName + "[" + index  + "]", value);
+    }
+
+    public void setUniform(String uniformName, float x, float y) {
+        glUniform2f(uniforms.get(uniformName), x, y);
+    }
+
+    public void setUniform(String uniformName, Vector2f value) {
+        glUniform2f(uniforms.get(uniformName), value.x, value.y);
     }
 
     public void setUniform(String uniformName, Vector3f value) {
@@ -173,7 +195,6 @@ public class ShaderProgram {
     }
 
     public void setUniform(String uniformName, Material material) {
-        setUniform(uniformName + ".ambient", material.getAmbientColour());
         setUniform(uniformName + ".diffuse", material.getDiffuseColour());
         setUniform(uniformName + ".specular", material.getSpecularColour());
         setUniform(uniformName + ".hasTexture", material.isTextured() ? 1 : 0);
@@ -233,7 +254,6 @@ public class ShaderProgram {
         if (glGetProgrami(programId, GL_VALIDATE_STATUS) == 0) {
             System.err.println("Warning validating Shader code: " + glGetProgramInfoLog(programId, 1024));
         }
-
     }
 
     public void bind() {

@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.HashMap;
@@ -96,15 +97,12 @@ public class FontTexture {
         g2D.dispose();
 
         // Dump image to a byte buffer
-        InputStream is;
         try (
-                ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             ImageIO.write(img, IMAGE_FORMAT, out);
             out.flush();
-            is = new ByteArrayInputStream(out.toByteArray());
+            texture = new Texture(ByteBuffer.wrap(out.toByteArray()));
         }
-
-        texture = new Texture(is);
     }
 
     public static class CharInfo {

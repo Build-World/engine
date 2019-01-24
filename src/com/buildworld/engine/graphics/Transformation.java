@@ -1,5 +1,6 @@
 package com.buildworld.engine.graphics;
 
+import com.buildworld.engine.graphics.camera.Camera;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -7,59 +8,25 @@ import com.buildworld.engine.graphics.game.GameItem;
 
 public class Transformation {
 
-    private final Matrix4f projectionMatrix;
-
     private final Matrix4f modelMatrix;
 
     private final Matrix4f modelViewMatrix;
 
     private final Matrix4f modelLightViewMatrix;
 
-    private final Matrix4f viewMatrix;
-
     private final Matrix4f lightViewMatrix;
-
-    private final Matrix4f orthoProjMatrix;
 
     private final Matrix4f ortho2DMatrix;
 
     private final Matrix4f orthoModelMatrix;
 
     public Transformation() {
-        projectionMatrix = new Matrix4f();
         modelMatrix = new Matrix4f();
         modelViewMatrix = new Matrix4f();
         modelLightViewMatrix = new Matrix4f();
-        viewMatrix = new Matrix4f();
-        orthoProjMatrix = new Matrix4f();
         ortho2DMatrix = new Matrix4f();
         orthoModelMatrix = new Matrix4f();
         lightViewMatrix = new Matrix4f();
-    }
-
-    public Matrix4f getProjectionMatrix() {
-        return projectionMatrix;
-    }
-
-    public Matrix4f updateProjectionMatrix(float fov, float width, float height, float zNear, float zFar) {
-        float aspectRatio = width / height;        
-        return projectionMatrix.setPerspective(fov, aspectRatio, zNear, zFar);
-    }
-
-    public final Matrix4f getOrthoProjectionMatrix() {
-        return orthoProjMatrix;
-    }
-
-    public Matrix4f updateOrthoProjectionMatrix(float left, float right, float bottom, float top, float zNear, float zFar) {
-        return orthoProjMatrix.setOrtho(left, right, bottom, top, zNear, zFar);
-    }
-
-    public Matrix4f getViewMatrix() {
-        return viewMatrix;
-    }
-
-    public Matrix4f updateViewMatrix(Camera camera) {
-        return updateGenericViewMatrix(camera.getPosition(), camera.getRotation(), viewMatrix);
     }
 
     public Matrix4f getLightViewMatrix() {
@@ -74,7 +41,7 @@ public class Transformation {
         return updateGenericViewMatrix(position, rotation, lightViewMatrix);
     }
 
-    private Matrix4f updateGenericViewMatrix(Vector3f position, Vector3f rotation, Matrix4f matrix) {
+    public static  Matrix4f updateGenericViewMatrix(Vector3f position, Vector3f rotation, Matrix4f matrix) {
         // First do the rotation so camera rotates over its position
         return matrix.rotationX((float)Math.toRadians(rotation.x))
                      .rotateY((float)Math.toRadians(rotation.y))

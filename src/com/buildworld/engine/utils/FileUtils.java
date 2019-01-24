@@ -1,11 +1,23 @@
 package com.buildworld.engine.utils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Scanner;
+
+import com.buildworld.game.Game;
 import com.shawnclake.morgencore.core.component.filesystem.FileRead;
 import com.shawnclake.morgencore.core.component.filesystem.Files;
+import org.lwjgl.BufferUtils;
+import static org.lwjgl.BufferUtils.*;
 
 public class FileUtils {
 
@@ -15,7 +27,7 @@ public class FileUtils {
 //             Scanner scanner = new Scanner(in)) {
 //            result = scanner.useDelimiter("\\A").next();
 //        }
-        result = new Scanner(new File(fileName)).useDelimiter("\\A").next();
+        result = new Scanner(new File(Game.path + fileName)).useDelimiter("\\A").next();
 
 
 
@@ -24,7 +36,7 @@ public class FileUtils {
 
     public static List<String> readAllLines(String fileName)
     {
-        return new FileRead(fileName).getEntireFile();
+        return new FileRead(Game.path + fileName).getEntireFile();
     }
 
     public static int[] listIntToArray(List<Integer> list) {
@@ -43,6 +55,45 @@ public class FileUtils {
 
     public static boolean existsResourceFile(String fileName) {
         Files files = new Files();
-        return files.isFile(fileName);
+        return files.isFile(Game.path + fileName);
     }
+
+    public static ByteBuffer ioResourceToByteBuffer(String resource, int bufferSize) throws IOException {
+        ByteBuffer buffer;
+
+        Path path = Paths.get(resource);
+        if (java.nio.file.Files.isReadable(path)) {
+            try (SeekableByteChannel fc = java.nio.file.Files.newByteChannel(path)) {
+                buffer = BufferUtils.createByteBuffer((int) fc.size() + 1);
+                while (fc.read(buffer) != -1) ;
+            }
+        } else {
+            try (
+                    InputStream source = new FileInputStream(Game.path + resource);
+                    ReadableByteChannel rbc = Channels.newChannel(source)) {
+                buffer = createByteBuffer(bufferSize);
+
+                while (true) {
+                    int bytes = rbc.read(buffer);
+                    if (bytes == -1) {
+                        break;
+                    }
+                    if (buffer.remaining() == 0) {
+                        buffer = resizeBuffer(buffer, buffer.capacity() * 2);
+                    }
+                }
+            }
+        }
+
+        buffer.flip();
+        return buffer;
+    }
+
+    private static ByteBuffer resizeBuffer(ByteBuffer buffer, int newCapacity) {
+        ByteBuffer newBuffer = BufferUtils.createByteBuffer(newCapacity);
+        buffer.flip();
+        newBuffer.put(buffer);
+        return newBuffer;
+    }
+
 }

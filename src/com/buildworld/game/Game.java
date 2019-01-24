@@ -49,6 +49,9 @@ public class Game {
 
         opts.cullFace = true;
         opts.showFps = true;
+        opts.compatibleProfile = true;
+        opts.antialiasing = true;
+        opts.frustumCulling = true;
 
         window = new Window(name, 640, 480, vSync, opts);
         gameTime = new GameTime(TARGET_TICKS, TARGET_FPS);

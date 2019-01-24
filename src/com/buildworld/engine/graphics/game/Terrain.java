@@ -1,11 +1,17 @@
 package com.buildworld.engine.graphics.game;
 
 import com.buildworld.engine.graphics.mesh.HeightMapMesh;
+import com.buildworld.engine.utils.FileUtils;
 import de.matthiasmann.twl.utils.PNGDecoder;
 
 import java.io.FileInputStream;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+
 import org.joml.Vector3f;
+import static org.lwjgl.stb.STBImage.*;
+import org.lwjgl.system.MemoryStack;
+import static org.lwjgl.system.MemoryStack.stackPush;
 
 public class Terrain {
 
@@ -41,31 +47,37 @@ public class Terrain {
         this.terrainSize = terrainSize;
         gameItems = new GameItem[terrainSize * terrainSize];
 
-        PNGDecoder decoder = new PNGDecoder(new FileInputStream(heightMapFile));
-        int height = decoder.getHeight();
-        int width = decoder.getWidth();
-        ByteBuffer buf = ByteBuffer.allocateDirect(
-                4 * decoder.getWidth() * decoder.getHeight());
-        decoder.decode(buf, decoder.getWidth() * 4, PNGDecoder.Format.RGBA);
-        buf.flip();
+        try (MemoryStack stack = stackPush()) {
+            IntBuffer w = stack.mallocInt(1);
+            IntBuffer h = stack.mallocInt(1);
+            IntBuffer avChannels = stack.mallocInt(1);
 
-        // The number of vertices per column and row
-        verticesPerCol = width - 1;
-        verticesPerRow = height - 1;
+            // Load image data
+            ByteBuffer imageData = FileUtils.ioResourceToByteBuffer(heightMapFile, 1024);
 
-        heightMapMesh = new HeightMapMesh(minY, maxY, buf, width, height, textureFile, textInc);
-        boundingBoxes = new Box2D[terrainSize][terrainSize];
-        for (int row = 0; row < terrainSize; row++) {
-            for (int col = 0; col < terrainSize; col++) {
-                float xDisplacement = (col - ((float) terrainSize - 1) / (float) 2) * scale * HeightMapMesh.getXLength();
-                float zDisplacement = (row - ((float) terrainSize - 1) / (float) 2) * scale * HeightMapMesh.getZLength();
+            // Decode texture image into a byte buffer
+            ByteBuffer decodedImage = stbi_load_from_memory(imageData, w, h, avChannels, 4);
+            int width = w.get();
+            int height = h.get();
 
-                GameItem terrainBlock = new GameItem(heightMapMesh.getMesh());
-                terrainBlock.setScale(scale);
-                terrainBlock.setPosition(xDisplacement, 0, zDisplacement);
-                gameItems[row * terrainSize + col] = terrainBlock;
+            // The number of vertices per column and row
+            verticesPerCol = width - 1;
+            verticesPerRow = height - 1;
 
-                boundingBoxes[row][col] = getBoundingBox(terrainBlock);
+            heightMapMesh = new HeightMapMesh(minY, maxY, decodedImage, width, height, textureFile, textInc);
+            boundingBoxes = new Box2D[terrainSize][terrainSize];
+            for (int row = 0; row < terrainSize; row++) {
+                for (int col = 0; col < terrainSize; col++) {
+                    float xDisplacement = (col - ((float) terrainSize - 1) / (float) 2) * scale * HeightMapMesh.getXLength();
+                    float zDisplacement = (row - ((float) terrainSize - 1) / (float) 2) * scale * HeightMapMesh.getZLength();
+
+                    GameItem terrainBlock = new GameItem(heightMapMesh.getMesh());
+                    terrainBlock.setScale(scale);
+                    terrainBlock.setPosition(xDisplacement, 0, zDisplacement);
+                    gameItems[row * terrainSize + col] = terrainBlock;
+
+                    boundingBoxes[row][col] = getBoundingBox(terrainBlock);
+                }
             }
         }
     }
