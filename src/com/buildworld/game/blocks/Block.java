@@ -26,16 +26,16 @@ abstract public class Block extends GameItem {
     private Vector3f chunkCoordinate;
     public List<IBlockProperty> blockProperties;
 
-    public static Map<Material, Mesh> matMeshes = new HashMap<>();
+    public static Map<String, Mesh[]> matMeshes = new HashMap<>();
 
-    public static Mesh getMesh(Material material) throws Exception
+    public Mesh[] getMeshFromCache() throws Exception
     {
-        if(matMeshes.containsKey(material))
+        if(matMeshes.containsKey(this.getName()))
         {
-            return matMeshes.get(material);
+            return matMeshes.get(this.getName());
         } else {
-            Mesh mesh = new CubeMesh().make(material);
-            matMeshes.put(material, mesh);
+            Mesh[] mesh = this.makeMesh();
+            matMeshes.put(this.getName(), mesh);
             if(matMeshes.size() > 4096)
             {
                 System.out.println("Block meshes exceeding limits");
@@ -44,23 +44,20 @@ abstract public class Block extends GameItem {
         }
     }
 
-    public Block(String namespace, String name, Material material) throws Exception {
-        this(namespace, name, getMesh(material), null, null);
+    abstract public Mesh[] makeMesh() throws Exception;
+
+    public Block(String namespace, String name) throws Exception {
+        this(namespace, name,null, null);
         this.material = material;
     }
 
-    public Block(String namespace, String name, Material material, Chunk chunk) throws Exception {
-        this(namespace, name, getMesh(material), null, chunk);
+    public Block(String namespace, String name, Chunk chunk) throws Exception {
+        this(namespace, name,null, chunk);
         this.material = material;
     }
 
-    public Block(String namespace, String name, Material material, IBlockType type) throws Exception {
-        this(namespace, name, getMesh(material), type, null);
-        this.material = material;
-    }
-
-    public Block(String namespace, String name, Material material, IBlockType type, Chunk chunk) throws Exception {
-        this(namespace, name, getMesh(material), type, chunk);
+    public Block(String namespace, String name, IBlockType type) throws Exception {
+        this(namespace, name,type, null);
         this.material = material;
     }
 
@@ -78,13 +75,13 @@ abstract public class Block extends GameItem {
         this.chunkCoordinate.z = z;
     }
 
-    private Block(String namespace, String name, Mesh mesh, IBlockType type, Chunk chunk) throws Exception {
+    private Block(String namespace, String name, IBlockType type, Chunk chunk) throws Exception {
         super();
-        this.setMesh(mesh);
         this.namespace = namespace;
         this.name = name;
         this.type = type;
         this.chunk = chunk;
+        this.setMeshes(this.getMeshFromCache());
         this.blockProperties = new ArrayList<>();
         this.setScale(0.5f);
         this.chunkCoordinate = new Vector3f(0 ,0f ,0f);
@@ -95,7 +92,7 @@ abstract public class Block extends GameItem {
 
     public Block(Block original) throws Exception
     {
-        this(original.namespace, original.name, original.material, original.type);
+        this(original.namespace, original.name, original.type);
     }
 
     abstract public Block copy() throws Exception;

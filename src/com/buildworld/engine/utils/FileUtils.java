@@ -61,7 +61,7 @@ public class FileUtils {
     public static ByteBuffer ioResourceToByteBuffer(String resource, int bufferSize) throws IOException {
         ByteBuffer buffer;
 
-        Path path = Paths.get(resource);
+        Path path = Paths.get(Game.path + resource);
         if (java.nio.file.Files.isReadable(path)) {
             try (SeekableByteChannel fc = java.nio.file.Files.newByteChannel(path)) {
                 buffer = BufferUtils.createByteBuffer((int) fc.size() + 1);
