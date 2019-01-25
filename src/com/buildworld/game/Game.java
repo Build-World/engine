@@ -17,7 +17,7 @@ public class Game {
     public static final int TARGET_FPS = 160;
     public static final int TARGET_TICKS = 40;
     public static final String name = "Build World";
-    public static final String path = "C:\\Users\\Quinn\\Documents\\Coding\\BuildWorld";
+    public static final String path = "D:\\Programming\\Projects\\Build-World";
 
     private double lastFps;
 
