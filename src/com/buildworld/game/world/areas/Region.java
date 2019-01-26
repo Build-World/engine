@@ -9,13 +9,13 @@ import com.buildworld.game.world.maps.types.PercipitationMap;
 import com.buildworld.game.world.maps.types.TemperatureMap;
 import org.joml.Vector2f;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Region implements IArea, IPersist {
 
     public static final int size = 9;
 
-    private HashMap<Integer, HashMap<Integer, Chunk>> map;
+    private ConcurrentHashMap<Integer, ConcurrentHashMap<Integer, Chunk>> map;
 
     private RegionState state;
 
@@ -45,7 +45,7 @@ public class Region implements IArea, IPersist {
     }
 
     public Region(RegionState state) {
-        map = new HashMap<>();
+        map = new ConcurrentHashMap<>();
         this.state = state;
     }
 
@@ -118,10 +118,10 @@ public class Region implements IArea, IPersist {
             throw new Exception("Out of region bounds");
         }
 
-        // Puts a block into the map but if the hashmaps dont exist it will create it
+        // Puts a block into the map but if the ConcurrentHashMaps dont exist it will create it
         chunk.setRegion(this);
         chunk.setLocation2D(new Vector2f(x,z));
-        map.computeIfAbsent(x, k -> new HashMap<>()).put(z, chunk);
+        map.computeIfAbsent(x, k -> new ConcurrentHashMap<>()).put(z, chunk);
     }
 
     public void setChunk(Vector2f coordinate, Chunk chunk) throws Exception {

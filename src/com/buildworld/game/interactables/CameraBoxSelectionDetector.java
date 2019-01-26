@@ -28,8 +28,7 @@ public class CameraBoxSelectionDetector {
         selectGameItem(gameItems, camera.getPosition(), dir);
     }
     
-    protected boolean selectGameItem(GameItem[] gameItems, Vector3f center, Vector3f dir) {
-        boolean selected = false;
+    protected GameItem selectGameItem(GameItem[] gameItems, Vector3f center, Vector3f dir) {
         GameItem selectedGameItem = null;
         float closestDistance = Float.POSITIVE_INFINITY;
 
@@ -47,8 +46,7 @@ public class CameraBoxSelectionDetector {
 
         if (selectedGameItem != null) {
             selectedGameItem.setSelected(true);
-            selected = true;
         }
-        return selected;
+        return selectedGameItem;
     }
 }

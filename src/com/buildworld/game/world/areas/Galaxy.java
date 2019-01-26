@@ -3,10 +3,16 @@ package com.buildworld.game.world.areas;
 import com.buildworld.game.world.WorldState;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class Galaxy {
 
-    ArrayList<World> worlds = new ArrayList<>();
+    private List<World> worlds = Collections.synchronizedList(new ArrayList<>());
+
+    public List<World> getWorlds() {
+        return worlds;
+    }
 
     public World add() throws Exception
     {

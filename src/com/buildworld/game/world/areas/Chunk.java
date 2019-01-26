@@ -8,8 +8,8 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Chunk implements IArea {
 
@@ -17,9 +17,9 @@ public class Chunk implements IArea {
 
     public static final int renderChunksPerSide = 3;
 
-    private HashMap<Integer, HashMap<Integer, HashMap<Integer, Block>>> map;
+    private ConcurrentHashMap<Integer, ConcurrentHashMap<Integer, ConcurrentHashMap<Integer, Block>>> map;
 
-    private HashMap<Integer, HashMap<Integer, RenderChunk>> renderChunks;
+    private ConcurrentHashMap<Integer, ConcurrentHashMap<Integer, RenderChunk>> renderChunks;
 
     private Biome biome;
 
@@ -63,13 +63,13 @@ public class Chunk implements IArea {
     }
 
     public Chunk() {
-        map = new HashMap<>();
-        renderChunks = new HashMap<>();
+        map = new ConcurrentHashMap<>();
+        renderChunks = new ConcurrentHashMap<>();
         for(int i = 0; i < renderChunksPerSide; i++)
         {
             for(int j = 0; j < renderChunksPerSide; j++)
             {
-                renderChunks.computeIfAbsent(i, k -> new HashMap<>()).put(j, new RenderChunk(this, new Vector2f(i,j)));
+                renderChunks.computeIfAbsent(i, k -> new ConcurrentHashMap<>()).put(j, new RenderChunk(this, new Vector2f(i,j)));
             }
         }
     }
@@ -124,7 +124,7 @@ public class Chunk implements IArea {
         int xOffset = x / RenderChunk.size;
         int zOffset = z / RenderChunk.size;
 
-        return renderChunks.get(x).get(z);
+        return renderChunks.get(xOffset).get(zOffset);
     }
 
     public RenderChunk getRenderChunkContainingBlock(Block block)
@@ -134,12 +134,23 @@ public class Chunk implements IArea {
 
     public void alertRenderChunk(int x, int z)
     {
-        //getRenderChunkContainingBlock(x,z).setRequiresRebuild(true);
+        getRenderChunkContainingBlock(x,z).setRequiresRebuild(true);
     }
 
     public void alertRenderChunk(Block block)
     {
         alertRenderChunk((int)block.getChunkCoordinate().x, (int)block.getChunkCoordinate().z);
+    }
+
+    public void updateBlock(int x, int y, int z) throws Exception
+    {
+        if(x < 0 || x >= size || z < 0 || z >= size || y < 0 || y > World.worldHeight)
+        {
+            throw new Exception("Out of chunk bounds");
+        }
+
+        // Alerts the applicable render chunk so that it knows it needs to rebuild itself.
+        alertRenderChunk(x,z);
     }
 
     public void setBlock(int x, int y, int z, Block block) throws Exception
@@ -158,8 +169,8 @@ public class Chunk implements IArea {
 
         block.setChunk(this);
 
-        // Puts a block into the map but if the hashmaps dont exist it will create it
-        map.computeIfAbsent(x, k -> new HashMap<>()).computeIfAbsent(z, l -> new HashMap<>()).put(y, block);
+        // Puts a block into the map but if the ConcurrentHashMaps dont exist it will create it
+        map.computeIfAbsent(x, k -> new ConcurrentHashMap<>()).computeIfAbsent(z, l -> new ConcurrentHashMap<>()).put(y, block);
 
         // Alerts the applicable render chunk so that it knows it needs to rebuild itself.
         alertRenderChunk(x,z);
@@ -187,6 +198,29 @@ public class Chunk implements IArea {
     public Block getBlock(Vector3f coordinate) throws Exception
     {
         return getBlock((int)coordinate.x, (int)coordinate.y, (int)coordinate.z);
+    }
+
+    public void removeBlock(int x, int y, int z) throws Exception
+    {
+        if(x < 0 || x >= size || z < 0 || z >= size || y < 0 || y > World.worldHeight)
+        {
+            throw new Exception("Out of chunk bounds");
+        }
+
+        try {
+            map.get(x).get(z).remove(y);
+        } catch (Exception e)
+        {
+
+        }
+
+        // Alerts the applicable render chunk so that it knows it needs to rebuild itself.
+        alertRenderChunk(x,z);
+    }
+
+    public void removeBlock(Vector3f coordinate) throws Exception
+    {
+        removeBlock((int)coordinate.x, (int)coordinate.y, (int)coordinate.z);
     }
 
     public boolean isAir(int x, int y, int z) throws Exception {

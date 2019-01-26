@@ -330,6 +330,21 @@ public class World implements IArea, IPersist {
         setBlock((int) blockCoordinate.x, (int) blockCoordinate.y, (int) blockCoordinate.z, block);
     }
 
+    public void removeBlock(int blockX, int blockY, int blockZ) throws Exception {
+        Chunk chunk = getContainingChunk(blockX, blockZ);
+        removed.add(chunk.getBlock(blockX % Chunk.size, blockY, blockZ % Chunk.size));
+        chunk.removeBlock(blockX % Chunk.size, blockY, blockZ % Chunk.size);
+
+    }
+
+    public void removeBlock(Vector3f blockCoordinate) throws Exception {
+        removeBlock((int) blockCoordinate.x, (int) blockCoordinate.y, (int) blockCoordinate.z);
+    }
+
+    public void removeBlock(Block block) throws Exception {
+        removeBlock(block.getPosition());
+    }
+
     /**
      * Returns whether a block exists at the given block coordinates. If not, it is air
      * @param blockX
@@ -706,129 +721,6 @@ public class World implements IArea, IPersist {
      * @param radius
      * @return
      */
-//    public List<Vector3f> getMovedRegionCoords(int blockX1, int blockY1, int blockZ1, int blockX2, int blockY2, int blockZ2, int radius) {
-//        // If there is no movement, return an empty array
-//        if (blockX1 == blockX2 && blockY1 == blockY2 && blockZ1 == blockZ2)
-//            return new ArrayList<>();
-//
-//        List<Vector3f> coords = new ArrayList<>();
-//
-//        // diameter represents the side length of a square
-//        int diameter = radius * 2 + 1;
-//
-//        // whether we are flipping on the X and/or Z axis to get our L to the top right quadrant
-//        boolean xFlip = false, yFlip=false, zFlip = false;
-//
-//        /*
-//         * VECTOR LIST:
-//         * P1: The original point
-//         * P2: The point we are moving to
-//         * P3: The point where P2 maps to the top right quadrant, if P2 is already in the top right, then P3==P2
-//         * P4: A coordinate
-//         * flip: The absolute values of the difference of (P2 - P1)
-//         * reverseFlip: Maps P4 from the top right quadrant to its expected quadrant
-//         */
-//        Vector3f p1 = new Vector3f(blockX1, blockY1, blockZ1);
-//        Vector3f p2 = new Vector3f(blockX2, blockY2, blockZ2);
-//
-//        Vector3f flip = new Vector3f(p2).sub(p1);
-//
-//        // Create these now to reduce overhead of garbage collection
-//        Vector3f reverseFlip = new Vector3f();
-//        Vector3f p4 = new Vector3f();
-//
-//        if (flip.x() < 0) {
-//            xFlip = true;
-//            flip.x = Math.abs(flip.x);
-//        }
-//
-//        if (flip.y() < 0) {
-//            yFlip = true;
-//            flip.y = Math.abs(flip.y);
-//        }
-//
-//        if (flip.z() < 0) {
-//            zFlip = true;
-//            flip.z = Math.abs(flip.z);
-//        }
-//
-//        Vector3f p3 = new Vector3f(p1).add(flip);
-//
-//        // Gets the coordinates of the prism on the right of the cube
-//        // Only runs if there is movement on the X axis
-//        for (int i = 0; i < flip.x; i++) {
-//            for (int j = 0; j < diameter; j++) {
-//                for(int k = 0; k < diameter; k++)
-//                {
-//                    reverseFlip.set(0f,0f,0f);
-//                    p4.set(p3).add(radius - flip.x() + 1, -radius, -radius).add(i, j, k);
-//
-//                    if (xFlip)
-//                        reverseFlip.x = (p4.x() - p1.x()) * 2;
-//                    if (yFlip)
-//                        reverseFlip.y = (p4.y() - p1.y()) * 2;
-//                    if (zFlip)
-//                        reverseFlip.z = (p4.z() - p1.z()) * 2;
-//
-//                    p4.sub(reverseFlip);
-//
-//                    coords.add(p4);
-//                }
-//            }
-//        }
-//
-//        // Gets the coordinates of the prism on the top of the cube
-//        // Only runs if there is movement on the Y axis
-//        for (int i = 0; i < (diameter - flip.x); i++) {
-//            for (int j = 0; j < flip.y; j++) {
-//                for(int k = 0; k < diameter; k++)
-//                {
-//                    reverseFlip.set(0f,0f,0f);
-//
-//                    p4.set(p3).add(-radius, radius - flip.y() + 1, -radius).add(i, j, k);
-//
-//                    if (xFlip)
-//                        reverseFlip.x = (p4.x() - p1.x()) * 2;
-//                    if (yFlip)
-//                        reverseFlip.y = (p4.y() - p1.y()) * 2;
-//                    if (zFlip)
-//                        reverseFlip.z = (p4.z() - p1.z()) * 2;
-//
-//                    p4.sub(reverseFlip);
-//
-//                    coords.add(p4);
-//                }
-//
-//            }
-//        }
-//
-//        // Gets the coordinates of the prism on the back of the cube
-//        // Only runs if there is movement on the Z axis
-//        for (int i = 0; i < (diameter - flip.x); i++) {
-//            for (int j = 0; j < (diameter - flip.y); j++) {
-//                for(int k = 0; k < flip.z; k++)
-//                {
-//                    reverseFlip.set(0f,0f,0f);
-//
-//                    p4.set(p3).add(-radius, -radius, radius - flip.z() + 1).add(i, j, k);
-//
-//                    if (xFlip)
-//                        reverseFlip.x = (p4.x() - p1.x()) * 2;
-//                    if (yFlip)
-//                        reverseFlip.y = (p4.y() - p1.y()) * 2;
-//                    if (zFlip)
-//                        reverseFlip.z = (p4.z() - p1.z()) * 2;
-//
-//                    p4.sub(reverseFlip);
-//
-//                    coords.add(p4);
-//                }
-//
-//            }
-//        }
-//
-//        return coords;
-//    }
     public List<Vector3f> getMovedRegionCoords(int blockX1, int blockY1, int blockZ1, int blockX2, int blockY2, int blockZ2, int radius) {
         // If there is no movement, return an empty array
         if (blockX1 == blockX2 && blockY1 == blockY2 && blockZ1 == blockZ2)
@@ -856,6 +748,10 @@ public class World implements IArea, IPersist {
 
         Vector3f flip = new Vector3f(p2).sub(p1);
 
+        // Create these now to reduce overhead of garbage collection
+        Vector3f reverseFlip = new Vector3f(0,0,0);
+        Vector3f p4 = new Vector3f(0,0,0);
+
         if (flip.x() < 0) {
             xFlip = true;
             flip.x = Math.abs(flip.x);
@@ -879,9 +775,9 @@ public class World implements IArea, IPersist {
             for (int j = 0; j < diameter; j++) {
                 for(int k = 0; k < diameter; k++)
                 {
-                    Vector3f reverseFlip = new Vector3f(0, 0, 0);
-
-                    Vector3f p4 = new Vector3f(p3).add(radius - flip.x() + 1, -radius, -radius).add(i, j, k);
+                    reverseFlip.set(0f,0f,0f);
+                    p4.set(0,0,0);
+                    p4.set(p3).add(radius - flip.x() + 1, -radius, -radius).add(i, j, k);
 
                     if (xFlip)
                         reverseFlip.x = (p4.x() - p1.x()) * 2;
@@ -892,7 +788,7 @@ public class World implements IArea, IPersist {
 
                     p4.sub(reverseFlip);
 
-                    coords.add(p4);
+                    coords.add(new Vector3f(p4));
                 }
             }
         }
@@ -903,9 +799,9 @@ public class World implements IArea, IPersist {
             for (int j = 0; j < flip.y; j++) {
                 for(int k = 0; k < diameter; k++)
                 {
-                    Vector3f reverseFlip = new Vector3f(0, 0, 0);
-
-                    Vector3f p4 = new Vector3f(p3).add(-radius, radius - flip.y() + 1, -radius).add(i, j, k);
+                    reverseFlip.set(0f,0f,0f);
+                    p4.set(0,0,0);
+                    p4.set(p3).add(-radius, radius - flip.y() + 1, -radius).add(i, j, k);
 
                     if (xFlip)
                         reverseFlip.x = (p4.x() - p1.x()) * 2;
@@ -916,7 +812,7 @@ public class World implements IArea, IPersist {
 
                     p4.sub(reverseFlip);
 
-                    coords.add(p4);
+                    coords.add(new Vector3f(p4));
                 }
 
             }
@@ -928,9 +824,9 @@ public class World implements IArea, IPersist {
             for (int j = 0; j < (diameter - flip.y); j++) {
                 for(int k = 0; k < flip.z; k++)
                 {
-                    Vector3f reverseFlip = new Vector3f(0, 0, 0);
-
-                    Vector3f p4 = new Vector3f(p3).add(-radius, -radius, radius - flip.z() + 1).add(i, j, k);
+                    reverseFlip.set(0f,0f,0f);
+                    p4.set(0,0,0);
+                    p4.set(p3).add(-radius, -radius, radius - flip.z() + 1).add(i, j, k);
 
                     if (xFlip)
                         reverseFlip.x = (p4.x() - p1.x()) * 2;
@@ -941,7 +837,7 @@ public class World implements IArea, IPersist {
 
                     p4.sub(reverseFlip);
 
-                    coords.add(p4);
+                    coords.add(new Vector3f(p4));
                 }
 
             }
@@ -949,6 +845,126 @@ public class World implements IArea, IPersist {
 
         return coords;
     }
+//    public List<Vector3f> getMovedRegionCoords(int blockX1, int blockY1, int blockZ1, int blockX2, int blockY2, int blockZ2, int radius) {
+//        // If there is no movement, return an empty array
+//        if (blockX1 == blockX2 && blockY1 == blockY2 && blockZ1 == blockZ2)
+//            return new ArrayList<>();
+//
+//        List<Vector3f> coords = new ArrayList<>();
+//
+//        // diameter represents the side length of a square
+//        int diameter = radius * 2 + 1;
+//
+//        // whether we are flipping on the X and/or Z axis to get our L to the top right quadrant
+//        boolean xFlip = false, yFlip=false, zFlip = false;
+//
+//        /*
+//         * VECTOR LIST:
+//         * P1: The original point
+//         * P2: The point we are moving to
+//         * P3: The point where P2 maps to the top right quadrant, if P2 is already in the top right, then P3==P2
+//         * P4: A coordinate
+//         * flip: The absolute values of the difference of (P2 - P1)
+//         * reverseFlip: Maps P4 from the top right quadrant to its expected quadrant
+//         */
+//        Vector3f p1 = new Vector3f(blockX1, blockY1, blockZ1);
+//        Vector3f p2 = new Vector3f(blockX2, blockY2, blockZ2);
+//
+//        Vector3f flip = new Vector3f(p2).sub(p1);
+//
+//        if (flip.x() < 0) {
+//            xFlip = true;
+//            flip.x = Math.abs(flip.x);
+//        }
+//
+//        if (flip.y() < 0) {
+//            yFlip = true;
+//            flip.y = Math.abs(flip.y);
+//        }
+//
+//        if (flip.z() < 0) {
+//            zFlip = true;
+//            flip.z = Math.abs(flip.z);
+//        }
+//
+//        Vector3f p3 = new Vector3f(p1).add(flip);
+//
+//        // Gets the coordinates of the prism on the right of the cube
+//        // Only runs if there is movement on the X axis
+//        for (int i = 0; i < flip.x; i++) {
+//            for (int j = 0; j < diameter; j++) {
+//                for(int k = 0; k < diameter; k++)
+//                {
+//                    Vector3f reverseFlip = new Vector3f(0, 0, 0);
+//
+//                    Vector3f p4 = new Vector3f(p3).add(radius - flip.x() + 1, -radius, -radius).add(i, j, k);
+//
+//                    if (xFlip)
+//                        reverseFlip.x = (p4.x() - p1.x()) * 2;
+//                    if (yFlip)
+//                        reverseFlip.y = (p4.y() - p1.y()) * 2;
+//                    if (zFlip)
+//                        reverseFlip.z = (p4.z() - p1.z()) * 2;
+//
+//                    p4.sub(reverseFlip);
+//
+//                    coords.add(p4);
+//                }
+//            }
+//        }
+//
+//        // Gets the coordinates of the prism on the top of the cube
+//        // Only runs if there is movement on the Y axis
+//        for (int i = 0; i < (diameter - flip.x); i++) {
+//            for (int j = 0; j < flip.y; j++) {
+//                for(int k = 0; k < diameter; k++)
+//                {
+//                    Vector3f reverseFlip = new Vector3f(0, 0, 0);
+//
+//                    Vector3f p4 = new Vector3f(p3).add(-radius, radius - flip.y() + 1, -radius).add(i, j, k);
+//
+//                    if (xFlip)
+//                        reverseFlip.x = (p4.x() - p1.x()) * 2;
+//                    if (yFlip)
+//                        reverseFlip.y = (p4.y() - p1.y()) * 2;
+//                    if (zFlip)
+//                        reverseFlip.z = (p4.z() - p1.z()) * 2;
+//
+//                    p4.sub(reverseFlip);
+//
+//                    coords.add(p4);
+//                }
+//
+//            }
+//        }
+//
+//        // Gets the coordinates of the prism on the back of the cube
+//        // Only runs if there is movement on the Z axis
+//        for (int i = 0; i < (diameter - flip.x); i++) {
+//            for (int j = 0; j < (diameter - flip.y); j++) {
+//                for(int k = 0; k < flip.z; k++)
+//                {
+//                    Vector3f reverseFlip = new Vector3f(0, 0, 0);
+//
+//                    Vector3f p4 = new Vector3f(p3).add(-radius, -radius, radius - flip.z() + 1).add(i, j, k);
+//
+//                    if (xFlip)
+//                        reverseFlip.x = (p4.x() - p1.x()) * 2;
+//                    if (yFlip)
+//                        reverseFlip.y = (p4.y() - p1.y()) * 2;
+//                    if (zFlip)
+//                        reverseFlip.z = (p4.z() - p1.z()) * 2;
+//
+//                    p4.sub(reverseFlip);
+//
+//                    coords.add(p4);
+//                }
+//
+//            }
+//        }
+//
+//        return coords;
+//    }
 
     /**
      * Flips a set of coordinates around the point x1,z1
@@ -1113,7 +1129,7 @@ public class World implements IArea, IPersist {
      * @param radius
      * @return
      */
-    public List<Block> getUpdatedInRange(int blockX, int blockY, int blockZ, int radius) {
+    public List<Block> getAddedInRange(int blockX, int blockY, int blockZ, int radius) {
         if (added.size() < 1)
             return new ArrayList<>();
 
@@ -1129,6 +1145,8 @@ public class World implements IArea, IPersist {
         this.added.clear();
         return region;
     }
+
+
 
     /**
      * Load a persisted world
