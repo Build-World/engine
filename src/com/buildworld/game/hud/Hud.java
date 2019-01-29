@@ -16,7 +16,7 @@ import org.lwjgl.system.MemoryUtil;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 
-public class Hud {
+public class Hud implements IHud {
 
     private static final String FONT_NAME = "BOLD";
 

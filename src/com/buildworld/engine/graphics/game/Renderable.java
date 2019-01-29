@@ -4,7 +4,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import com.buildworld.engine.graphics.mesh.Mesh;
 
-public class GameItem {
+public class Renderable {
 
     private boolean selected;
 
@@ -22,7 +22,7 @@ public class GameItem {
 
     private boolean insideFrustum;
 
-    public GameItem() {
+    public Renderable() {
         selected = false;
         position = new Vector3f(0, 0, 0);
         scale = 1;
@@ -32,12 +32,12 @@ public class GameItem {
         disableFrustumCulling = false;
     }
 
-    public GameItem(Mesh mesh) {
+    public Renderable(Mesh mesh) {
         this();
         this.meshes = new Mesh[]{mesh};
     }
 
-    public GameItem(Mesh[] meshes) {
+    public Renderable(Mesh[] meshes) {
         this();
         this.meshes = meshes;
     }

@@ -1,7 +1,7 @@
 package com.buildworld.game.interactables;
 
 import com.buildworld.engine.graphics.camera.Camera;
-import com.buildworld.engine.graphics.game.GameItem;
+import com.buildworld.engine.graphics.game.Renderable;
 import org.joml.Intersectionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -23,30 +23,30 @@ public class CameraBoxSelectionDetector {
         nearFar = new Vector2f();
     }
 
-    public void selectGameItem(GameItem[] gameItems, Camera camera) {
+    public void selectGameItem(Renderable[] renderables, Camera camera) {
         dir = camera.getViewMatrix().positiveZ(dir).negate();
-        selectGameItem(gameItems, camera.getPosition(), dir);
+        selectGameItem(renderables, camera.getPosition(), dir);
     }
     
-    protected GameItem selectGameItem(GameItem[] gameItems, Vector3f center, Vector3f dir) {
-        GameItem selectedGameItem = null;
+    protected Renderable selectGameItem(Renderable[] renderables, Vector3f center, Vector3f dir) {
+        Renderable selectedRenderable = null;
         float closestDistance = Float.POSITIVE_INFINITY;
 
-        for (GameItem gameItem : gameItems) {
-            gameItem.setSelected(false);
-            min.set(gameItem.getPosition());
-            max.set(gameItem.getPosition());
-            min.add(-gameItem.getScale(), -gameItem.getScale(), -gameItem.getScale());
-            max.add(gameItem.getScale(), gameItem.getScale(), gameItem.getScale());
+        for (Renderable renderable : renderables) {
+            renderable.setSelected(false);
+            min.set(renderable.getPosition());
+            max.set(renderable.getPosition());
+            min.add(-renderable.getScale(), -renderable.getScale(), -renderable.getScale());
+            max.add(renderable.getScale(), renderable.getScale(), renderable.getScale());
             if (Intersectionf.intersectRayAab(center, dir, min, max, nearFar) && nearFar.x < closestDistance) {
                 closestDistance = nearFar.x;
-                selectedGameItem = gameItem;
+                selectedRenderable = renderable;
             }
         }
 
-        if (selectedGameItem != null) {
-            selectedGameItem.setSelected(true);
+        if (selectedRenderable != null) {
+            selectedRenderable.setSelected(true);
         }
-        return selectedGameItem;
+        return selectedRenderable;
     }
 }

@@ -2,11 +2,9 @@ package com.buildworld.game.interactables;
 
 import com.buildworld.engine.graphics.Window;
 import com.buildworld.engine.graphics.camera.Camera;
-import com.buildworld.engine.graphics.game.GameItem;
-import org.joml.Intersectionf;
+import com.buildworld.engine.graphics.game.Renderable;
 import org.joml.Matrix4f;
 import org.joml.Vector2d;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
@@ -28,7 +26,7 @@ public class MouseBoxSelectionDetector extends CameraBoxSelectionDetector {
         tmpVec = new Vector4f();
     }
     
-    public GameItem selectGameItem(GameItem[] gameItems, Window window, Vector2d mousePos, Camera camera) {
+    public Renderable selectGameItem(Renderable[] renderables, Window window, Vector2d mousePos, Camera camera) {
         // Transform mouse coordinates into normalized spaze [-1, 1]
         int wdwWitdh = window.getWidth();
         int wdwHeight = window.getHeight();
@@ -52,6 +50,6 @@ public class MouseBoxSelectionDetector extends CameraBoxSelectionDetector {
         
         mouseDir.set(tmpVec.x, tmpVec.y, tmpVec.z);
 
-        return selectGameItem(gameItems, camera.getPosition(), mouseDir);
+        return selectGameItem(renderables, camera.getPosition(), mouseDir);
     }
 }

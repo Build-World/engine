@@ -83,10 +83,10 @@ public class BlockNeighbors implements IArea {
 
     @Override
     public Vector2f getLocation2D() {
-        return new Vector2f(target.getPosition().x, target.getPosition().z);
+        return new Vector2f(target.getWorldPosition().x, target.getWorldPosition().z);
     }
 
     public Vector3f getLocation3D() {
-        return new Vector3f(target.getPosition());
+        return new Vector3f(target.getWorldPosition());
     }
 }

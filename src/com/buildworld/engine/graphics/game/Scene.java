@@ -1,9 +1,6 @@
 package com.buildworld.engine.graphics.game;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.buildworld.engine.graphics.lights.SceneLight;
 import com.buildworld.engine.graphics.mesh.InstancedMesh;
@@ -13,9 +10,9 @@ import com.buildworld.engine.graphics.weather.Fog;
 
 public class Scene {
 
-    private final Map<Mesh, List<GameItem>> meshMap;
+    private final Map<Mesh, List<Renderable>> meshMap;
 
-    private final Map<InstancedMesh, List<GameItem>> instancedMeshMap;
+    private final Map<InstancedMesh, List<Renderable>> instancedMeshMap;
 
     private SkyBox skyBox;
 
@@ -28,17 +25,17 @@ public class Scene {
     private IParticleEmitter[] particleEmitters;
 
     public Scene() {
-        meshMap = new HashMap();
-        instancedMeshMap = new HashMap();
+        meshMap = new HashMap<>();
+        instancedMeshMap = new HashMap<>();
         fog = Fog.NOFOG;
         renderShadows = true;
     }
 
-    public Map<Mesh, List<GameItem>> getGameMeshes() {
+    public Map<Mesh, List<Renderable>> getGameMeshes() {
         return meshMap;
     }
 
-    public Map<InstancedMesh, List<GameItem>> getGameInstancedMeshes() {
+    public Map<InstancedMesh, List<Renderable>> getGameInstancedMeshes() {
         return instancedMeshMap;
     }
 
@@ -46,51 +43,76 @@ public class Scene {
         return renderShadows;
     }
 
-    public void setGameItems(GameItem[] gameItems) {
-        // Create a map of meshes to speed up rendering
-        int numGameItems = gameItems != null ? gameItems.length : 0;
-        for (int i = 0; i < numGameItems; i++) {
-            GameItem gameItem = gameItems[i];
-            Mesh[] meshes = gameItem.getMeshes();
-            for (Mesh mesh : meshes) {
-                boolean instancedMesh = mesh instanceof InstancedMesh;
-                List<GameItem> list = instancedMesh ? instancedMeshMap.get(mesh) : meshMap.get(mesh);
-                if (list == null) {
-                    list = new ArrayList<>();
-                    if (instancedMesh) {
-                        instancedMeshMap.put((InstancedMesh)mesh, list);
-                    } else {
-                        meshMap.put(mesh, list);
-                    }
+    public void setGameItem(Renderable renderable)
+    {
+        for (Mesh mesh : renderable.getMeshes()) {
+            boolean instancedMesh = mesh instanceof InstancedMesh;
+            List<Renderable> list = instancedMesh ? instancedMeshMap.get(mesh) : meshMap.get(mesh);
+            if (list == null) {
+                list = new ArrayList<>();
+                if (instancedMesh) {
+                    instancedMeshMap.put((InstancedMesh)mesh, list);
+                } else {
+                    meshMap.put(mesh, list);
                 }
-                list.add(gameItem);
             }
+            list.add(renderable);
         }
     }
 
-    public void removeGameItems(GameItem[] gameItems) {
+    public void removeGameItem(Renderable renderable)
+    {
+        for (Mesh mesh : renderable.getMeshes()) {
+            boolean instancedMesh = mesh instanceof InstancedMesh;
+            List<Renderable> list = instancedMesh ? instancedMeshMap.get(mesh) : meshMap.get(mesh);
+            if(list != null)
+                list.remove(renderable);
+        }
+    }
+
+    public void setGameItems(Renderable[] renderables) {
         // Create a map of meshes to speed up rendering
-        int numGameItems = gameItems != null ? gameItems.length : 0;
+        int numGameItems = renderables != null ? renderables.length : 0;
         for (int i = 0; i < numGameItems; i++) {
-            GameItem gameItem = gameItems[i];
-            Mesh[] meshes = gameItem.getMeshes();
-            for (Mesh mesh : meshes) {
-                boolean instancedMesh = mesh instanceof InstancedMesh;
-                List<GameItem> list = instancedMesh ? instancedMeshMap.get(mesh) : meshMap.get(mesh);
-                if(list != null)
-                    list.remove(gameItem);
-            }
+            setGameItem(renderables[i]);
         }
     }
 
-    public <T extends GameItem> void setGameItems(List<T> gameItems) {
-        setGameItems(gameItems.toArray(new GameItem[0]));
+    public void removeGameItems(Renderable[] renderables) {
+        // Create a map of meshes to speed up rendering
+        int numGameItems = renderables != null ? renderables.length : 0;
+        for (int i = 0; i < numGameItems; i++) {
+            removeGameItem(renderables[i]);
+        }
     }
 
-    public <T extends GameItem> void removeGameItems(List<T> gameItems) {
-        removeGameItems(gameItems.toArray(new GameItem[0]));
+    public <T extends Renderable> void setGameItems(List<T> renderables) {
+        for(Renderable renderable : renderables)
+        {
+            setGameItem(renderable);
+        }
     }
 
+    public <T extends Renderable> void removeGameItems(List<T> renderables) {
+        for(Renderable renderable : renderables)
+        {
+            removeGameItem(renderable);
+        }
+    }
+
+    public <T extends Renderable> void setGameItems(Set<T> renderables) {
+        for(Renderable renderable : renderables)
+        {
+            setGameItem(renderable);
+        }
+    }
+
+    public <T extends Renderable> void removeGameItems(Set<T> renderables) {
+        for(Renderable renderable : renderables)
+        {
+            removeGameItem(renderable);
+        }
+    }
 
     public void cleanup() {
         for (Mesh mesh : meshMap.keySet()) {

@@ -3,13 +3,13 @@ package com.buildworld.engine.graphics.text;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.buildworld.engine.graphics.game.GameItem;
+import com.buildworld.engine.graphics.game.Renderable;
 import com.buildworld.engine.graphics.materials.Material;
 import com.buildworld.engine.graphics.mesh.Mesh;
 import com.buildworld.engine.graphics.textures.FontTexture;
 import com.buildworld.engine.utils.FileUtils;
 
-public class TextItem extends GameItem {
+public class TextItem extends Renderable {
 
     private static final float ZPOS = 0.0f;
 

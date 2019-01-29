@@ -1,9 +1,7 @@
-package com.buildworld.engine.graphics.loaders.assimp;
+package com.buildworld.engine.graphics.textures;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import com.buildworld.engine.graphics.textures.Texture;
 
 public class TextureCache {
 

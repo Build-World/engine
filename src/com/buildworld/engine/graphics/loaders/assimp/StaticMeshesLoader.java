@@ -18,6 +18,7 @@ import java.util.List;
 import com.buildworld.engine.graphics.materials.Material;
 import com.buildworld.engine.graphics.mesh.Mesh;
 import com.buildworld.engine.graphics.textures.Texture;
+import com.buildworld.engine.graphics.textures.TextureCache;
 import com.buildworld.engine.utils.FileUtils;
 import org.joml.Vector4f;
 import org.lwjgl.PointerBuffer;

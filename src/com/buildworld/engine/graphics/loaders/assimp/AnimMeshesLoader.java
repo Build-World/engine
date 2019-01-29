@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.buildworld.engine.graphics.animations.AnimGameItem;
+import com.buildworld.engine.graphics.animations.AnimRenderable;
 import com.buildworld.engine.graphics.animations.AnimatedFrame;
 import com.buildworld.engine.graphics.animations.Animation;
 import com.buildworld.engine.graphics.materials.Material;
@@ -64,14 +64,14 @@ public class AnimMeshesLoader extends StaticMeshesLoader {
         }
     }
 
-    public static AnimGameItem loadAnimGameItem(String resourcePath, String texturesDir)
+    public static AnimRenderable loadAnimGameItem(String resourcePath, String texturesDir)
             throws Exception {
         return loadAnimGameItem(resourcePath, texturesDir,
                 aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_Triangulate
                 | aiProcess_FixInfacingNormals | aiProcess_LimitBoneWeights);
     }
 
-    public static AnimGameItem loadAnimGameItem(String resourcePath, String texturesDir, int flags)
+    public static AnimRenderable loadAnimGameItem(String resourcePath, String texturesDir, int flags)
             throws Exception {
         AIScene aiScene = aiImportFile(resourcePath, flags);
         if (aiScene == null) {
@@ -100,7 +100,7 @@ public class AnimMeshesLoader extends StaticMeshesLoader {
         Matrix4f rootTransfromation = AnimMeshesLoader.toMatrix(aiRootNode.mTransformation());
         Node rootNode = processNodesHierarchy(aiRootNode, null);
         Map<String, Animation> animations = processAnimations(aiScene, boneList, rootNode, rootTransfromation);
-        AnimGameItem item = new AnimGameItem(meshes, animations);
+        AnimRenderable item = new AnimRenderable(meshes, animations);
 
         return item;
     }

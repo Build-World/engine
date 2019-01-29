@@ -8,9 +8,9 @@ import com.buildworld.engine.graphics.camera.Camera;
 import com.buildworld.engine.graphics.Renderer;
 import com.buildworld.engine.graphics.Transformation;
 import com.buildworld.engine.graphics.Window;
-import com.buildworld.engine.graphics.animations.AnimGameItem;
+import com.buildworld.engine.graphics.animations.AnimRenderable;
 import com.buildworld.engine.graphics.animations.AnimatedFrame;
-import com.buildworld.engine.graphics.game.GameItem;
+import com.buildworld.engine.graphics.game.Renderable;
 import com.buildworld.engine.graphics.game.Scene;
 import com.buildworld.engine.graphics.lights.DirectionalLight;
 import com.buildworld.engine.graphics.lights.SceneLight;
@@ -35,7 +35,7 @@ public class ShadowRenderer {
 
     private ShadowBuffer shadowBuffer;
 
-    private final List<GameItem> filteredItems;
+    private final List<Renderable> filteredItems;
 
     public ShadowRenderer() {
         filteredItems = new ArrayList<>();
@@ -119,13 +119,13 @@ public class ShadowRenderer {
         depthShaderProgram.setUniform("isInstanced", 0);
 
         // Render each mesh with the associated game Items
-        Map<Mesh, List<GameItem>> mapMeshes = scene.getGameMeshes();
+        Map<Mesh, List<Renderable>> mapMeshes = scene.getGameMeshes();
         for (Mesh mesh : mapMeshes.keySet()) {
-            mesh.renderList(mapMeshes.get(mesh), (GameItem gameItem) -> {
-                Matrix4f modelMatrix = transformation.buildModelMatrix(gameItem);
+            mesh.renderList(mapMeshes.get(mesh), (Renderable renderable) -> {
+                Matrix4f modelMatrix = transformation.buildModelMatrix(renderable);
                 depthShaderProgram.setUniform("modelNonInstancedMatrix", modelMatrix);
-                if (gameItem instanceof AnimGameItem) {
-                    AnimGameItem animGameItem = (AnimGameItem) gameItem;
+                if (renderable instanceof AnimRenderable) {
+                    AnimRenderable animGameItem = (AnimRenderable) renderable;
                     AnimatedFrame frame = animGameItem.getCurrentAnimation().getCurrentFrame();
                     depthShaderProgram.setUniform("jointsMatrix", frame.getJointMatrices());
                 }
@@ -138,12 +138,12 @@ public class ShadowRenderer {
         depthShaderProgram.setUniform("isInstanced", 1);
 
         // Render each mesh with the associated game Items
-        Map<InstancedMesh, List<GameItem>> mapMeshes = scene.getGameInstancedMeshes();
+        Map<InstancedMesh, List<Renderable>> mapMeshes = scene.getGameInstancedMeshes();
         for (InstancedMesh mesh : mapMeshes.keySet()) {
             filteredItems.clear();
-            for (GameItem gameItem : mapMeshes.get(mesh)) {
-                if (gameItem.isInsideFrustum()) {
-                    filteredItems.add(gameItem);
+            for (Renderable renderable : mapMeshes.get(mesh)) {
+                if (renderable.isInsideFrustum()) {
+                    filteredItems.add(renderable);
                 }
             }
             bindTextures(GL_TEXTURE2);

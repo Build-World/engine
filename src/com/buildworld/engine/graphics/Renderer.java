@@ -1,6 +1,6 @@
 package com.buildworld.engine.graphics;
 
-import com.buildworld.engine.graphics.animations.AnimGameItem;
+import com.buildworld.engine.graphics.animations.AnimRenderable;
 import com.buildworld.engine.graphics.animations.AnimatedFrame;
 import com.buildworld.engine.graphics.buffers.GBuffer;
 import com.buildworld.engine.graphics.buffers.SceneBuffer;
@@ -23,7 +23,7 @@ import com.buildworld.engine.utils.FileUtils;
 import com.buildworld.game.Game;
 import org.joml.Matrix4f;
 import static org.lwjgl.opengl.GL11.*;
-import com.buildworld.engine.graphics.game.GameItem;
+import com.buildworld.engine.graphics.game.Renderable;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
@@ -56,7 +56,7 @@ public class Renderer {
 
     private final FrustumCullingFilter frustumFilter;
 
-    private final List<GameItem> filteredItems;
+    private final List<Renderable> filteredItems;
 
     private GBuffer gBuffer;
 
@@ -519,7 +519,7 @@ public class Renderer {
         gBufferShaderProgram.setUniform("isInstanced", 0);
 
         // Render each mesh with the associated game Items
-        Map<Mesh, List<GameItem>> mapMeshes = scene.getGameMeshes();
+        Map<Mesh, List<Renderable>> mapMeshes = scene.getGameMeshes();
         for (Mesh mesh : mapMeshes.keySet()) {
             gBufferShaderProgram.setUniform("material", mesh.getMaterial());
 
@@ -529,12 +529,12 @@ public class Renderer {
                 gBufferShaderProgram.setUniform("numRows", text.getNumRows());
             }
 
-            mesh.renderList(mapMeshes.get(mesh), (GameItem gameItem) -> {
-                gBufferShaderProgram.setUniform("selectedNonInstanced", gameItem.isSelected() ? 1.0f : 0.0f);
-                Matrix4f modelMatrix = transformation.buildModelMatrix(gameItem);
+            mesh.renderList(mapMeshes.get(mesh), (Renderable renderable) -> {
+                gBufferShaderProgram.setUniform("selectedNonInstanced", renderable.isSelected() ? 1.0f : 0.0f);
+                Matrix4f modelMatrix = transformation.buildModelMatrix(renderable);
                 gBufferShaderProgram.setUniform("modelNonInstancedMatrix", modelMatrix);
-                if (gameItem instanceof AnimGameItem) {
-                    AnimGameItem animGameItem = (AnimGameItem) gameItem;
+                if (renderable instanceof AnimRenderable) {
+                    AnimRenderable animGameItem = (AnimRenderable) renderable;
                     AnimatedFrame frame = animGameItem.getCurrentAnimation().getCurrentFrame();
                     gBufferShaderProgram.setUniform("jointsMatrix", frame.getJointMatrices());
                 }
@@ -547,7 +547,7 @@ public class Renderer {
         gBufferShaderProgram.setUniform("isInstanced", 1);
 
         // Render each mesh with the associated game Items
-        Map<InstancedMesh, List<GameItem>> mapMeshes = scene.getGameInstancedMeshes();
+        Map<InstancedMesh, List<Renderable>> mapMeshes = scene.getGameInstancedMeshes();
         for (InstancedMesh mesh : mapMeshes.keySet()) {
             Texture text = mesh.getMaterial().getTexture();
             if (text != null) {
@@ -558,9 +558,9 @@ public class Renderer {
             gBufferShaderProgram.setUniform("material", mesh.getMaterial());
 
             filteredItems.clear();
-            for (GameItem gameItem : mapMeshes.get(mesh)) {
-                if (gameItem.isInsideFrustum()) {
-                    filteredItems.add(gameItem);
+            for (Renderable renderable : mapMeshes.get(mesh)) {
+                if (renderable.isInsideFrustum()) {
+                    filteredItems.add(renderable);
                 }
             }
 

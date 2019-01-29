@@ -136,6 +136,12 @@ public class WorldController {
             }
         }
 
+        for (int i = 0; i < Region.size; i++) {
+            for (int j = 0; j < Region.size; j++) {
+                region.getChunk(i,j).build();
+            }
+        }
+
         return region;
     }
 

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.buildworld.engine.graphics.game.GameItem;
+import com.buildworld.engine.graphics.game.Renderable;
 import org.joml.Vector3f;
 
 public class FlowParticleEmitter implements IParticleEmitter {
@@ -13,7 +13,7 @@ public class FlowParticleEmitter implements IParticleEmitter {
 
     private boolean active;
 
-    private final List<GameItem> particles;
+    private final List<Renderable> particles;
 
     private final Particle baseParticle;
 
@@ -52,7 +52,7 @@ public class FlowParticleEmitter implements IParticleEmitter {
     }
 
     @Override
-    public List<GameItem> getParticles() {
+    public List<Renderable> getParticles() {
         return particles;
     }
 
@@ -105,7 +105,7 @@ public class FlowParticleEmitter implements IParticleEmitter {
         if (lastCreationTime == 0) {
             lastCreationTime = now;
         }
-        Iterator<? extends GameItem> it = particles.iterator();
+        Iterator<? extends Renderable> it = particles.iterator();
         while (it.hasNext()) {
             Particle particle = (Particle) it.next();
             if (particle.updateTtl(elapsedTime) < 0) {
@@ -154,7 +154,7 @@ public class FlowParticleEmitter implements IParticleEmitter {
 
     @Override
     public void cleanup() {
-        for (GameItem particle : getParticles()) {
+        for (Renderable particle : getParticles()) {
             particle.cleanup();
         }
     }

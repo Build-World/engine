@@ -1,11 +1,11 @@
 package com.buildworld.engine.graphics.particles;
 
-import com.buildworld.engine.graphics.game.GameItem;
+import com.buildworld.engine.graphics.game.Renderable;
 import com.buildworld.engine.graphics.mesh.Mesh;
 import com.buildworld.engine.graphics.textures.Texture;
 import org.joml.Vector3f;
 
-public class Particle extends GameItem {
+public class Particle extends Renderable {
 
     private long updateTextureMillis;
     

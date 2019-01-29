@@ -113,6 +113,8 @@ public class Region implements IArea, IPersist {
 
     public void setChunk(int x, int z, Chunk chunk) throws Exception
     {
+        x = Math.abs(x);
+        z = Math.abs(z);
         if(x < 0 || x >= size || z < 0 || z >= size)
         {
             throw new Exception("Out of region bounds");
@@ -130,6 +132,8 @@ public class Region implements IArea, IPersist {
 
     public Chunk getChunk(int x, int z) throws Exception
     {
+        x = Math.abs(x);
+        z = Math.abs(z);
         if(x < 0 || x >= size || z < 0 || z >= size)
         {
             throw new Exception("Out of region bounds");
@@ -148,6 +152,8 @@ public class Region implements IArea, IPersist {
 
     public boolean isChunk(int x, int z) throws Exception
     {
+        x = Math.abs(x);
+        z = Math.abs(z);
         if(x < 0 || x >= size || z < 0 || z >= size)
         {
             throw new Exception("Out of chunk bounds");

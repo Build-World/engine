@@ -2,7 +2,7 @@ package com.buildworld.engine.graphics.particles;
 
 import java.util.List;
 
-import com.buildworld.engine.graphics.game.GameItem;
+import com.buildworld.engine.graphics.game.Renderable;
 
 public interface IParticleEmitter {
 
@@ -10,5 +10,5 @@ public interface IParticleEmitter {
     
     Particle getBaseParticle();
     
-    List<GameItem> getParticles();
+    List<Renderable> getParticles();
 }

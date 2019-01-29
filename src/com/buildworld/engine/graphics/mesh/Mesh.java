@@ -12,7 +12,7 @@ import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 
-import com.buildworld.engine.graphics.game.GameItem;
+import com.buildworld.engine.graphics.game.Renderable;
 import com.buildworld.engine.graphics.textures.Texture;
 import com.buildworld.engine.graphics.materials.Material;
 import org.lwjgl.system.MemoryUtil;
@@ -206,13 +206,13 @@ public class Mesh {
         endRender();
     }
 
-    public void renderList(List<GameItem> gameItems, Consumer<GameItem> consumer) {
+    public void renderList(List<Renderable> renderables, Consumer<Renderable> consumer) {
         initRender();
 
-        for (GameItem gameItem : gameItems) {
-            if (gameItem.isInsideFrustum()) {
+        for (Renderable renderable : renderables) {
+            if (renderable.isInsideFrustum()) {
                 // Set up data requiered by gameItem
-                consumer.accept(gameItem);
+                consumer.accept(renderable);
                 // Render this game item
                 glDrawElements(GL_TRIANGLES, getVertexCount(), GL_UNSIGNED_INT, 0);
             }
